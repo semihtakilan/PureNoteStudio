@@ -14,7 +14,7 @@ final class AppDependencies {
     let modelContext: ModelContext
     
     let noteRepository: NoteRepository
-//    let categoryRepository: CategoryRepository
+    let categoryRepository: CategoryRepository
 
     init() {
         let schema = Schema([Note.self, Category.self])
@@ -26,6 +26,6 @@ final class AppDependencies {
         }
         self.modelContext = ModelContext(modelContainer)
         self.noteRepository = NoteRepositoryLive(modelContext: modelContext)
-//        self.categoryRepository = CategoryRepositoryLive(modelContext: modelContext)
+        self.categoryRepository = CategoryRepositoryLive(modelContext: modelContext)
     }
 }

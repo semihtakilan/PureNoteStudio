@@ -10,26 +10,50 @@ import SwiftData
 
 protocol CategoryRepository {
     func fetchAll() throws -> [Category]
-    func load() throws -> Category?
-    func create(name: String) throws -> Category
-    func addNote() throws
-    func deleteNote(id: UUID) throws
-    func deleteCategory(id: UUID) throws
+    func addCategory(_ name: String) throws
+    func assignNote(_ note: Note,_ category: Category) throws
+    func removeFromCategory(_ note: Note, _ category: Category) throws
+    func delete(category: Category) throws
+    func save() throws
 }
 
-
-final class CategoryRepositoryLive {
+final class CategoryRepositoryLive: CategoryRepository {
     private let modelContext: ModelContext
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
     
-    func fetchAll() throws -> [Note] {
-        let descriptor = FetchDescriptor<Note>(
-            sortBy: [SortDescriptor(\.lastEdit)]
+    func fetchAll() throws -> [Category] {
+        let descriptor = FetchDescriptor<Category>(
+            sortBy: [SortDescriptor(\.createdOn)]
         )
         return try modelContext.fetch(descriptor)
+    }
+    
+    func addCategory(_ name: String) throws{
+        let newCategory = Category(name: name)
+        modelContext.insert(newCategory)
+        try save()
+    }
+    
+    func assignNote(_ note: Note, _ category: Category) throws {
+        note.category = category
+        try save()
+    }
+    
+    func removeFromCategory(_ note: Note, _ category: Category) throws {
+        note.category = nil
+        try save()
+    }
+    
+    func delete(category: Category) throws {
+        modelContext.delete(category)
+        try save()
+    }
+    
+    func save() throws {
+        try modelContext.save()
     }
     
 }

@@ -11,7 +11,7 @@ import SwiftData
 struct NotesView: View {
     @State private var viewModel: NotesViewModel
     
-    init(repository: NoteRepositoryLive) {
+    init(repository: NoteRepository) {
         self._viewModel = State(
             initialValue: NotesViewModel(
                 repository: repository
