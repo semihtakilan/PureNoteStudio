@@ -6,3 +6,15 @@
 //
 
 import Foundation
+import SwiftData
+
+@Model
+final class Category {
+    var id: UUID = UUID()
+    var name: String
+    var isSelected: Bool = false
+    
+    init(name: String) {
+        self.name = name
+    }
+}

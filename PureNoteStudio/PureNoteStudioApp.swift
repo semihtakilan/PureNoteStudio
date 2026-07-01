@@ -13,7 +13,8 @@ struct PureNoteStudioApp: App {
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Note.self
+            Note.self,
+            Category.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -26,7 +27,7 @@ struct PureNoteStudioApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootTabView()
         }
         .modelContainer(sharedModelContainer)
     }

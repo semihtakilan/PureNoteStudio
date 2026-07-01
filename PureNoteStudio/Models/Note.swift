@@ -13,10 +13,10 @@ final class Note {
     var id: UUID = UUID()
     var title: String
     var contentText: String
-    var createdOn: Date = Date()
-    var category: String
+    var lastEdit: Date = Date()
+    var category: Category?
     
-    init(title: String, contentText: String, category: String = "") {
+    init(title: String, contentText: String, category: Category = Category(name:"All")) {
         self.title = title
         self.contentText = contentText
         self.category = category

@@ -28,7 +28,6 @@ struct NotesView: View {
             SearchBarView(searchText: $searchText)
             
             // MARK: - Categories
-            CategoriesView()
 
             Spacer()
         }
