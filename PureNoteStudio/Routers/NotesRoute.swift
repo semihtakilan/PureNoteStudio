@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum NotesRoute: Hashable {
-    case detail(UUID)
+    case detail(Note)
 }
 
 @Observable

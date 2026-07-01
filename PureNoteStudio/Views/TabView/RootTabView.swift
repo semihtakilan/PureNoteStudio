@@ -6,22 +6,26 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct RootTabView: View {
-    @State private var router = TabRouter()
+    @Environment(AppDependencies.self)
+    private var appDependencies
     
+    @Environment(TabRouter.self)
+    private var router
+
     var body: some View {
         TabView(selection: Binding (
             get: { router.selectedTab },
             set: { router.selectedTab = $0 }
         )) {
-            
             NavigationStack(path: Bindable(router.notesRouter).path) {
-                NotesView()
+                NotesView(repository: appDependencies.noteRepository)
                     .navigationDestination(for: NotesRoute.self) { route in
                         switch route {
-                        case .detail(let id):
-                            NoteDetailView(noteID: id)
+                        case .detail(let note):
+                            NoteDetailView(note: note)
                         }
                     }
             }
@@ -47,5 +51,6 @@ struct RootTabView: View {
             }
             .tag(Tab.settings)
         }
+        .modelContainer(appDependencies.modelContainer)
     }
 }

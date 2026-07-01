@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 enum Tab: Hashable {
     case notes, folders, settings
@@ -14,6 +15,5 @@ enum Tab: Hashable {
 @Observable
 final class TabRouter {
     var selectedTab: Tab = .notes
-    
     private(set) var notesRouter: NotesRouter = .init()
 }
