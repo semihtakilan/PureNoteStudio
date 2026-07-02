@@ -12,7 +12,3 @@ struct SettingsView: View {
         Text("Settings Tab")
     }
 }
-
-#Preview {
-    SettingsView()
-}

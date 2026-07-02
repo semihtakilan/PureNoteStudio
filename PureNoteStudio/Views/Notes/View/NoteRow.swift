@@ -27,7 +27,7 @@ struct NoteRow: View {
                         
                         Spacer()
                         
-                        Text("Zaman İbaresi")
+                        Text(note.lastEdit.formattedDateString)
                             .font(.footnote)
                             .foregroundColor(.secondary)
                     }

@@ -12,7 +12,3 @@ struct FoldersView: View {
         Text("Folders Tab")
     }
 }
-
-#Preview {
-    FoldersView()
-}
