@@ -21,13 +21,16 @@ struct RootTabView: View {
             set: { router.selectedTab = $0 }
         )) {
             NavigationStack(path: Bindable(router.notesRouter).path) {
-                NotesView(repository: appDependencies.noteRepository)
-                    .navigationDestination(for: NotesRoute.self) { route in
-                        switch route {
-                        case .detail(let note):
-                            NoteDetailView(note: note)
-                        }
+                NotesView(
+                    noteRepository: appDependencies.noteRepository,
+                    categoryRepository: appDependencies.categoryRepository
+                )
+                .navigationDestination(for: NotesRoute.self) { route in
+                    switch route {
+                    case .detail(let note):
+                        NoteDetailView(note: note)
                     }
+                }
             }
             .environment(router.notesRouter)
             .tabItem {

@@ -10,36 +10,30 @@ import SwiftData
 
 @Observable
 final class NotesViewModel {
-    private let repository: NoteRepository
+    private let noteRepository: NoteRepository
+    private let categoryRepository: CategoryRepository
     
     var notes: [Note] = []
     var categories: [Category] = []
+    var chipDatas: [ChipData] = []
     var selectedCategory: Category?
     var searchText: String = ""
     
-    init(repository: NoteRepository) {
-        self.repository = repository
+    init(
+        noteRepository: NoteRepository,
+        categoryRepository: CategoryRepository
+    ) {
+        self.noteRepository = noteRepository
+        self.categoryRepository = categoryRepository
     }
     
     func load() {
         do {
-            notes = try repository.fetchAll()
+            notes = try noteRepository.fetchAll()
+            categories = try categoryRepository.fetchAll()
+            chipDatas = ChipData.fetchAll(from: categories)
         } catch {
-            print("HATA")
+            print("Bir şeyler patladı!!!")
         }
-    }
-
-    func chipSelected(chip: Category) {
-        print("First Selected: \(chip.name): \(chip.isSelected)")
-        
-        for category in categories {
-            if chip != category {
-                chip.isSelected = false
-            } else {
-                chip.isSelected.toggle()
-            }
-        }
-        
-        print("Last Selected: \(chip.name): \(chip.isSelected)")
     }
 }

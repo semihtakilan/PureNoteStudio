@@ -43,6 +43,7 @@ struct NoteRow: View {
                     .foregroundStyle(.tertiary)
                     .padding(.leading, 8)
             }
+            .padding(10)
         }
     }
 }

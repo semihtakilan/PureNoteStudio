@@ -11,42 +11,41 @@ import SwiftData
 struct NotesView: View {
     @State private var viewModel: NotesViewModel
     
-    init(repository: NoteRepository) {
+    init(
+        noteRepository: NoteRepository,
+        categoryRepository: CategoryRepository
+    ) {
         self._viewModel = State(
             initialValue: NotesViewModel(
-                repository: repository
+                noteRepository: noteRepository,
+                categoryRepository: categoryRepository
             )
         )
     }
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             // MARK: - Title
             Text("Notes")
                 .font(.largeTitle)
                 .bold(true)
-                .padding(.top)
-                
+            
             // MARK: - SearchBar
             SearchBarView(searchText: $viewModel.searchText)
             
             // MARK: - Categories
-            ScrollView(.horizontal) {
-                HStack {
-                    ForEach(viewModel.categories) { category in
-                        Button(category.name, action: {
-                            viewModel.chipSelected(chip: category)
-                        })
-                    }
-                }
-            }
+            ChipView(allDatas: $viewModel.chipDatas)
+            
             // MARK: - NoteList
             noteListView()
+            
+            
         }
         .padding(.horizontal)
         .task {
             viewModel.load()
         }
+        .background(Color(.systemGray6))
     }
 }
 
@@ -58,8 +57,18 @@ extension NotesView {
             LazyVStack {
                 ForEach(viewModel.notes) { note in
                     NoteRow(note: note)
+                    if note != viewModel.notes.last {
+                        Divider()
+                    }
                 }
+                
+                Text("\(viewModel.notes.count) Notes")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .padding(.top)
             }
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .background(.white)
         }
     }
 }
