@@ -21,7 +21,3 @@ struct SearchBarView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
-
-#Preview {
-    SearchBarView(searchText: .constant(""))
-}

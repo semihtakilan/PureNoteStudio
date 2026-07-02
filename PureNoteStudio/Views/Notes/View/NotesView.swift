@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct NotesView: View {
-    @State private var viewModel: NotesViewModel
+    @State var viewModel: NotesViewModel
     
     init(
         noteRepository: NoteRepository,
@@ -34,7 +34,7 @@ struct NotesView: View {
             SearchBarView(searchText: $viewModel.searchText)
             
             // MARK: - Categories
-            ChipView(allDatas: $viewModel.chipDatas)
+            ChipView(chipDatas: viewModel.chipDatas, selectedChip: viewModel.selectedChip, onSelect: viewModel.didTapChip)
             
             // MARK: - NoteList
             noteListView()

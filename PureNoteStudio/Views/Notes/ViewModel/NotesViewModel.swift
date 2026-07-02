@@ -16,7 +16,8 @@ final class NotesViewModel {
     var notes: [Note] = []
     var categories: [Category] = []
     var chipDatas: [ChipData] = []
-    var selectedCategory: Category?
+    
+    var selectedChip: ChipData? = nil
     var searchText: String = ""
     
     init(
@@ -31,9 +32,33 @@ final class NotesViewModel {
         do {
             notes = try noteRepository.fetchAll()
             categories = try categoryRepository.fetchAll()
-            chipDatas = ChipData.fetchAll(from: categories)
+            chipDatas = fetchAllChipDatas(from: categories)
         } catch {
             print("Bir şeyler patladı!!!")
         }
+    }
+    
+    func convertCategoryToChipData(category: Category) -> ChipData {
+        return .init(name: category.name, createdOn: category.createdOn)
+    }
+    
+    func fetchAllChipDatas(from categories: [Category]) -> [ChipData] {
+        var chipDatas: [ChipData] = []
+        
+        for category in categories {
+            chipDatas.append(self.convertCategoryToChipData(category: category))
+        }
+        
+        return chipDatas
+    }
+    
+    func didTapChip(_ chip: ChipData) {
+        if selectedChip?.id == chip.id {
+            selectedChip = nil
+        } else {
+            selectedChip = chip
+        }
+        
+        
     }
 }
