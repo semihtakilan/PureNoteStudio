@@ -38,8 +38,6 @@ struct NotesView: View {
             
             // MARK: - NoteList
             noteListView()
-            
-            
         }
         .padding(.horizontal)
         .task {
@@ -53,22 +51,28 @@ extension NotesView {
     
     @ViewBuilder
     func noteListView() -> some View {
+//        swipe delet yapabilmek için list'e çevirilicek
         ScrollView {
-            LazyVStack {
+            LazyVStack(spacing: 8) {
                 ForEach(viewModel.notes) { note in
                     NoteRow(note: note)
-                    if note != viewModel.notes.last {
+                    
+                    if note.id != viewModel.notes.last?.id {
                         Divider()
+                            .padding(.leading, 10)
                     }
                 }
-                
-                Text("\(viewModel.notes.count) Notes")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                    .padding(.top)
             }
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .padding(.vertical, 8)
             .background(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            
+            Text("\(viewModel.notes.count) Notes")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .padding(.top, 8)
         }
+        .scrollIndicators(.hidden)
     }
 }
+

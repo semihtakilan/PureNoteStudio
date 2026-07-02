@@ -18,7 +18,8 @@ struct ChipData: Identifiable {
         self.isSelected = isSelected
         self.createdOn = createdOn
     }
-    
+
+//    view model'de yapılacak TAŞI
     static func convertCategoryToChipData(category: Category) -> ChipData {
         return .init(name: category.name, isSelected: category.isSelected, createdOn: category.createdOn)
     }
@@ -61,6 +62,7 @@ struct ChipView: View {
 
     }
     
+//    mantığı yanlış
     func chipSelected(_ selected: ChipData) {
         for index in allDatas.indices {
             if selected.id != allDatas[index].id {

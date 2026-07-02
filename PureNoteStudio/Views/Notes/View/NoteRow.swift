@@ -18,7 +18,7 @@ struct NoteRow: View {
         Button {
             route.push(.detail(note))
         } label: {
-            HStack(alignment: .top) {
+            HStack(alignment: .center) {
                 VStack(alignment: .leading) {
                     HStack {
                         Text(note.title)
@@ -43,7 +43,7 @@ struct NoteRow: View {
                     .foregroundStyle(.tertiary)
                     .padding(.leading, 8)
             }
-            .padding(10)
+            .padding(.horizontal)
         }
     }
 }
