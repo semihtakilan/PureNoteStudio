@@ -26,39 +26,47 @@ struct NotesView: View {
     }
     
     var body: some View {
-        VStack(alignment: .center, spacing: 15) {
+        VStack(spacing: 16) {
             // MARK: - SearchBar
             SearchBarView(searchText: $viewModel.searchText)
+            .padding(.leading, 8)
             
             // MARK: - Categories
             ChipView(chipDatas: viewModel.chipDatas, selectedChip: $viewModel.selectedChip)
                 .onChange(of: viewModel.selectedChip?.name ?? "All") { oldValue, newValue in
                     viewModel.handleChipChange(newValue)
                 }
+                .padding(.leading, 8)
+            
             // MARK: - NoteList
             noteListView()
             
             Text("\(viewModel.notes.count) Notes")
                 .font(.footnote)
-                .foregroundColor(.secondary)
-                .padding(.top, 8)
+                .frame(maxWidth: .infinity)
+                .multilineTextAlignment(.center)
+                .padding()
+            
         }
         .navigationTitle("Notes")
-        .padding(.horizontal)
         .task {
             viewModel.load()
         }
-        .background(Color(.systemGray6))
+        .frame(
+            minWidth: 0,
+            maxWidth: .infinity,
+            minHeight: 0,
+            maxHeight: .infinity,
+            alignment: .center
+        )
     }
     
 }
-    
 
 extension NotesView {
     
     @ViewBuilder
     func noteListView() -> some View {
-//        swipe delet yapabilmek için list'e çevirilicek
         List {
             ForEach(viewModel.notes) { note in
                 NoteRow(note: note)
@@ -67,6 +75,7 @@ extension NotesView {
                 viewModel.deleteWhenSwipe(IndexSet)
             })
         }
+        .listStyle(.plain)
         .toolbar {
             Button("Add", systemImage: "plus") {
                 router.push(.sheets)
