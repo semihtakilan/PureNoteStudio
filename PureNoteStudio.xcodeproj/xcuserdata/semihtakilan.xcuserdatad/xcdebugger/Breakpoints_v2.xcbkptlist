@@ -7,52 +7,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "ED52F0A3-33BD-4DDF-A1D2-964C5FE8D5BD"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "PureNoteStudio/Repository/NoteRepository.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "23"
-            endingLineNumber = "23"
-            landmarkName = "NoteRepositoryLive"
-            landmarkType = "3">
-            <Locations>
-               <Location
-                  uuid = "ED52F0A3-33BD-4DDF-A1D2-964C5FE8D5BD - 900c9eb93b230d5a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "PureNoteStudio.NoteRepositoryLive.__allocating_init(modelContext: SwiftData.ModelContext) -&gt; PureNoteStudio.NoteRepositoryLive"
-                  moduleName = "PureNoteStudio.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/semihtakilan/Development/Projects/GI%CC%87B%20Teknoloji/PureNoteStudio/PureNoteStudio/Repository/NoteRepository.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "23"
-                  endingLineNumber = "23">
-               </Location>
-               <Location
-                  uuid = "ED52F0A3-33BD-4DDF-A1D2-964C5FE8D5BD - 3ef82a4c929c3949"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "PureNoteStudio.NoteRepositoryLive.init(modelContext: SwiftData.ModelContext) -&gt; PureNoteStudio.NoteRepositoryLive"
-                  moduleName = "PureNoteStudio.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/semihtakilan/Development/Projects/GI%CC%87B%20Teknoloji/PureNoteStudio/PureNoteStudio/Repository/NoteRepository.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "23"
-                  endingLineNumber = "23">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "F128B371-2592-4924-81C7-30437A46256D"
             shouldBeEnabled = "No"
             ignoreCount = "0"

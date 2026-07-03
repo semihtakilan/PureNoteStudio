@@ -42,9 +42,57 @@ final class NotesViewModel {
     }
     
     func handleChipChange(_ newValue: String) {
-        notes = noteRepository.filter(chip: newValue)
+        print(newValue)
+        if newValue == "All" {
+            do {
+                notes = try noteRepository.fetchAll()
+            } catch {
+            }
+        } else {
+            notes = noteRepository.filter(chip: newValue)
+        }
     }
     
+    func deleteWhenSwipe(_ indexSet: IndexSet) {
+        guard let index = indexSet.first,
+              let note = notes.get(index)
+        else { return }
+        do {
+            try noteRepository.delete(note)
+            notes = try noteRepository.fetchAll()
+        } catch {
+            print("silemedik \(error)")
+        }
+    }
+    
+    func addSampleNotes() {
+        do {
+            try noteRepository.add(Note(title: "Deneme 5", contentText: "Rabarba rabbbarba rabarrrrbaaaa", category: categories[2]))
+            try noteRepository.add(Note(title: "Deneme 6", contentText: "Blllaaa bla rabarba biraz daha bla bla", category: categories[1]))
+            try noteRepository.add(Note(title: "Deneme 7", contentText: "Blallalalal bla booşşssss bla bla", category: categories[4]))
+            try noteRepository.add(Note(title: "Deneme 8", contentText: "Bla laylaylom lay lay lom blalalla bla bla", category: categories[3]))
+            notes = try noteRepository.fetchAll()
+            
+            
+        } catch {
+            print("e yeter da artık")
+        }
+    }
+    
+}
+
+extension Collection {
+    subscript(safe index: Index) -> Element? {
+        guard indices.contains(index) else {
+            assertionFailure("Index \(index) out of bounds")
+            return nil
+        }
+        return self[index]
+    }
+    
+    func get(_ index: Index) -> Element? {
+        self[safe: index]
+    }
 }
 
 extension Date {

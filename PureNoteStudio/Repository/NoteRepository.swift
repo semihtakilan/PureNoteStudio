@@ -21,20 +21,21 @@ protocol NoteRepository {
 
 final class NoteRepositoryLive: NoteRepository {
     private let modelContext: ModelContext
-    private var descriptor = FetchDescriptor<Note>(
-        sortBy: [SortDescriptor(\.lastEdit)]
-    )
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
 
     func fetchAll() throws -> [Note] {
-        return try modelContext.fetch(descriptor)
+        let descriptor = FetchDescriptor<Note>(
+            sortBy: [SortDescriptor(\.lastEdit)]
+        )
+        let notes = try modelContext.fetch(descriptor)
+        return notes
     }
 
     func search(matching query: String) throws -> [Note] {
-        descriptor = FetchDescriptor<Note>(
+        let descriptor = FetchDescriptor<Note>(
             predicate: #Predicate { $0.title.localizedStandardContains(query) }
         )
         return try modelContext.fetch(descriptor)
@@ -53,8 +54,9 @@ final class NoteRepositoryLive: NoteRepository {
         modelContext.delete(note)
         try save()
     }
+    
     func filter(chip: String) -> [Note] {
-        descriptor = FetchDescriptor<Note>(
+        let descriptor = FetchDescriptor<Note>(
             predicate: #Predicate { $0.category?.name == chip }
         )
         do {

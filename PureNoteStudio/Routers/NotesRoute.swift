@@ -9,6 +9,7 @@ import SwiftUI
 
 enum NotesRoute: Hashable {
     case detail(Note)
+    case sheets
 }
 
 @Observable

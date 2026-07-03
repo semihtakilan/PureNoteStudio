@@ -10,6 +10,8 @@ import SwiftData
 
 struct NotesView: View {
     @State var viewModel: NotesViewModel
+    @Environment(NotesRouter.self)
+    private var router
     
     init(
         noteRepository: NoteRepository,
@@ -61,26 +63,15 @@ extension NotesView {
             ForEach(viewModel.notes) { note in
                 NoteRow(note: note)
             }
+            .onDelete(perform: { IndexSet in
+                viewModel.deleteWhenSwipe(IndexSet)
+            })
         }
-        
-//        ScrollView {
-//            LazyVStack(spacing: 8) {
-//                ForEach(viewModel.notes) { note in
-//                    NoteRow(note: note)
-//                    
-//                    if note.id != viewModel.notes.last?.id {
-//                        Divider()
-//                            .padding(.leading, 10)
-//                    }
-//                }
-//            }
-//            .padding(.vertical, 8)
-//            .background(.white)
-//            .clipShape(RoundedRectangle(cornerRadius: 16))
-//            
-            
-//        }
-//        .scrollIndicators(.hidden)
+        .toolbar {
+            Button("Add", systemImage: "plus") {
+                router.push(.sheets)
+            }
+        }
     }
 }
 
