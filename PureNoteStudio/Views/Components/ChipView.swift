@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ChipData: Identifiable {
+struct ChipData: Identifiable, Equatable {
     var id: UUID = UUID()
     var name: String
     private(set) var createdOn: Date
@@ -20,8 +20,7 @@ struct ChipData: Identifiable {
 
 struct ChipView: View {
     let chipDatas: [ChipData]
-    let selectedChip: ChipData?
-    let onSelect: (ChipData) -> Void
+    @Binding var selectedChip: ChipData?
     
     var body: some View {
         ScrollView(.horizontal) {
@@ -29,8 +28,9 @@ struct ChipView: View {
                 ForEach(chipDatas) { chip in
                     let isSelected = chip.id == selectedChip?.id
                     Button {
-                        onSelect(chip)
-                    } label: {
+                        selectedChip = chip
+                    }
+                    label: {
                         Text(chip.name)
                     }
                     .padding(8)
@@ -46,4 +46,3 @@ struct ChipView: View {
         .scrollIndicators(.hidden)
     }
 }
-

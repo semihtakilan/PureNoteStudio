@@ -32,35 +32,19 @@ final class NotesViewModel {
         do {
             notes = try noteRepository.fetchAll()
             categories = try categoryRepository.fetchAll()
-            chipDatas = fetchAllChipDatas(from: categories)
+            chipDatas = categories.map({ category in
+                return .init(name: category.name, createdOn: category.createdOn)
+            })
+            self.selectedChip = chipDatas.first
         } catch {
             print("Bir şeyler patladı!!!")
         }
     }
     
-    func convertCategoryToChipData(category: Category) -> ChipData {
-        return .init(name: category.name, createdOn: category.createdOn)
-    }
-    
-    func fetchAllChipDatas(from categories: [Category]) -> [ChipData] {
-        var chipDatas: [ChipData] = []
-        
-        for category in categories {
-            chipDatas.append(self.convertCategoryToChipData(category: category))
+    func handleChipChange(_ newValue: ChipData?) {
+        print("New value received in ViewModel: \(newValue?.name ?? "")")
         }
-        
-        return chipDatas
-    }
     
-    func didTapChip(_ chip: ChipData) {
-        if selectedChip?.id == chip.id {
-            selectedChip = nil
-        } else {
-            selectedChip = chip
-        }
-        
-        
-    }
 }
 
 extension Date {

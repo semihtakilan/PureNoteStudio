@@ -24,55 +24,63 @@ struct NotesView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            // MARK: - Title
-            Text("Notes")
-                .font(.largeTitle)
-                .bold(true)
-            
+        VStack(alignment: .center, spacing: 15) {
             // MARK: - SearchBar
             SearchBarView(searchText: $viewModel.searchText)
             
             // MARK: - Categories
-            ChipView(chipDatas: viewModel.chipDatas, selectedChip: viewModel.selectedChip, onSelect: viewModel.didTapChip)
-            
+            ChipView(chipDatas: viewModel.chipDatas, selectedChip: $viewModel.selectedChip)
+                .onChange(of: viewModel.selectedChip) { oldValue, newValue in
+                    viewModel.handleChipChange(newValue)
+                }
             // MARK: - NoteList
             noteListView()
-        }
-        .padding(.horizontal)
-        .task {
-            viewModel.load()
-        }
-        .background(Color(.systemGray6))
-    }
-}
-
-extension NotesView {
-    
-    @ViewBuilder
-    func noteListView() -> some View {
-//        swipe delet yapabilmek için list'e çevirilicek
-        ScrollView {
-            LazyVStack(spacing: 8) {
-                ForEach(viewModel.notes) { note in
-                    NoteRow(note: note)
-                    
-                    if note.id != viewModel.notes.last?.id {
-                        Divider()
-                            .padding(.leading, 10)
-                    }
-                }
-            }
-            .padding(.vertical, 8)
-            .background(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
             
             Text("\(viewModel.notes.count) Notes")
                 .font(.footnote)
                 .foregroundColor(.secondary)
                 .padding(.top, 8)
         }
-        .scrollIndicators(.hidden)
+        .navigationTitle("Notes")
+        .padding(.horizontal)
+        .task {
+            viewModel.load()
+        }
+        .background(Color(.systemGray6))
+    }
+    
+}
+    
+
+extension NotesView {
+    
+    @ViewBuilder
+    func noteListView() -> some View {
+//        swipe delet yapabilmek için list'e çevirilicek
+        List {
+            ForEach(viewModel.notes) { note in
+                NoteRow(note: note)
+            }
+        }
+        
+//        ScrollView {
+//            LazyVStack(spacing: 8) {
+//                ForEach(viewModel.notes) { note in
+//                    NoteRow(note: note)
+//                    
+//                    if note.id != viewModel.notes.last?.id {
+//                        Divider()
+//                            .padding(.leading, 10)
+//                    }
+//                }
+//            }
+//            .padding(.vertical, 8)
+//            .background(.white)
+//            .clipShape(RoundedRectangle(cornerRadius: 16))
+//            
+            
+//        }
+//        .scrollIndicators(.hidden)
     }
 }
 
