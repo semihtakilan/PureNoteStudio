@@ -41,9 +41,9 @@ final class NotesViewModel {
         }
     }
     
-    func handleChipChange(_ newValue: ChipData?) {
-        print("New value received in ViewModel: \(newValue?.name ?? "")")
-        }
+    func handleChipChange(_ newValue: String) {
+        notes = noteRepository.filter(chip: newValue)
+    }
     
 }
 

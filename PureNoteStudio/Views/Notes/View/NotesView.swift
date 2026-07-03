@@ -30,7 +30,7 @@ struct NotesView: View {
             
             // MARK: - Categories
             ChipView(chipDatas: viewModel.chipDatas, selectedChip: $viewModel.selectedChip)
-                .onChange(of: viewModel.selectedChip) { oldValue, newValue in
+                .onChange(of: viewModel.selectedChip?.name ?? "All") { oldValue, newValue in
                     viewModel.handleChipChange(newValue)
                 }
             // MARK: - NoteList

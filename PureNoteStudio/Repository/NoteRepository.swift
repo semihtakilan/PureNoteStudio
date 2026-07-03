@@ -14,25 +14,27 @@ protocol NoteRepository {
     func add(_ note: Note) throws
     func update(_ note: Note) throws
     func delete(_ note: Note) throws
+    func filter(chip: String) -> [Note]
     func save() throws
+    
 }
 
 final class NoteRepositoryLive: NoteRepository {
     private let modelContext: ModelContext
+    private var descriptor = FetchDescriptor<Note>(
+        sortBy: [SortDescriptor(\.lastEdit)]
+    )
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
 
     func fetchAll() throws -> [Note] {
-        let descriptor = FetchDescriptor<Note>(
-            sortBy: [SortDescriptor(\.lastEdit)]
-        )
         return try modelContext.fetch(descriptor)
     }
 
     func search(matching query: String) throws -> [Note] {
-        let descriptor = FetchDescriptor<Note>(
+        descriptor = FetchDescriptor<Note>(
             predicate: #Predicate { $0.title.localizedStandardContains(query) }
         )
         return try modelContext.fetch(descriptor)
@@ -50,6 +52,17 @@ final class NoteRepositoryLive: NoteRepository {
     func delete(_ note: Note) throws {
         modelContext.delete(note)
         try save()
+    }
+    func filter(chip: String) -> [Note] {
+        descriptor = FetchDescriptor<Note>(
+            predicate: #Predicate { $0.category?.name == chip }
+        )
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            print("gene patladı \(error)")
+        }
+        return []
     }
 
     func save() throws {
