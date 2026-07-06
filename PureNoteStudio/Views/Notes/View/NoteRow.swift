@@ -24,6 +24,7 @@ struct NoteRow: View {
                         Text(note.title)
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .lineLimit(1)
                         
                         Spacer()
                         
@@ -42,9 +43,6 @@ struct NoteRow: View {
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.tertiary)
             }
-            .padding()
-            .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }
 }

@@ -28,7 +28,7 @@ final class NoteRepositoryLive: NoteRepository {
 
     func fetchAll() throws -> [Note] {
         let descriptor = FetchDescriptor<Note>(
-            sortBy: [SortDescriptor(\.lastEdit)]
+            sortBy: [SortDescriptor(\.lastEdit, order: .reverse)]
         )
         let notes = try modelContext.fetch(descriptor)
         return notes
