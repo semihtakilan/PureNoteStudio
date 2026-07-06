@@ -20,6 +20,8 @@ final class NotesViewModel {
     var selectedChip: ChipData? = nil
     var searchText: String = ""
     
+    var isAddNoteSheetPresented: Bool = false
+    
     init(
         noteRepository: NoteRepository,
         categoryRepository: CategoryRepository
@@ -42,7 +44,6 @@ final class NotesViewModel {
     }
     
     func handleChipChange(_ newValue: String) {
-        print(newValue)
         if newValue == "All" {
             do {
                 notes = try noteRepository.fetchAll()
@@ -63,6 +64,12 @@ final class NotesViewModel {
         } catch {
             print("silemedik \(error)")
         }
+    }
+    
+    func saveNote(title: String, content: String) throws {
+        try noteRepository.add(Note(title: title, contentText: content))
+        load()
+        isAddNoteSheetPresented = false
     }
     
     func addSampleNotes() {

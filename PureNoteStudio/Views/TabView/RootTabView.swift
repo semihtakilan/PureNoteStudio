@@ -29,8 +29,6 @@ struct RootTabView: View {
                     switch route {
                     case .detail(let note):
                         NoteDetailView(note: note)
-                    case .sheets:
-                        Text("Sheets")
                     }
                 }
             }

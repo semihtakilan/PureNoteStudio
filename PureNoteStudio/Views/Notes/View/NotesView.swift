@@ -26,7 +26,7 @@ struct NotesView: View {
     }
     
     var body: some View {
-        VStack(alignment: .center, spacing: 15) {
+        VStack(spacing: 16) {
             // MARK: - SearchBar
             SearchBarView(searchText: $viewModel.searchText)
             
@@ -38,10 +38,25 @@ struct NotesView: View {
             // MARK: - NoteList
             noteListView()
             
+            // MARK: - NotesCount
             Text("\(viewModel.notes.count) Notes")
                 .font(.footnote)
                 .foregroundColor(.secondary)
                 .padding(.top, 8)
+            
+            // MARK: - AddNoteButton
+            Button {
+                viewModel.isAddNoteSheetPresented.toggle()
+                print(viewModel.isAddNoteSheetPresented)
+            } label: {
+                Image(systemName: "square.and.pencil")
+            }
+            .padding(8)
+            .font(.subheadline)
+            .foregroundColor(.white)
+            .background(Color(.systemBlue))
+            .clipShape(Circle())
+            .frame(minWidth: 0, maxWidth: .infinity ,alignment: .trailing)
         }
         .navigationTitle("Notes")
         .padding(.horizontal)
@@ -49,6 +64,11 @@ struct NotesView: View {
             viewModel.load()
         }
         .background(Color(.systemGray6))
+        .sheet(isPresented: $viewModel.isAddNoteSheetPresented) {
+            AddNoteSheet { title, content in
+                try viewModel.saveNote(title: title, content: content)
+            }
+        }
     }
     
 }
@@ -58,20 +78,20 @@ extension NotesView {
     
     @ViewBuilder
     func noteListView() -> some View {
-//        swipe delet yapabilmek için list'e çevirilicek
         List {
             ForEach(viewModel.notes) { note in
                 NoteRow(note: note)
             }
-            .onDelete(perform: { IndexSet in
-                viewModel.deleteWhenSwipe(IndexSet)
-            })
+            .onDelete { indexSet in
+                viewModel.deleteWhenSwipe(indexSet)
+            }
         }
+        .listStyle(.plain)
+        .scrollIndicators(.hidden)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .toolbar {
             Button("Add", systemImage: "plus") {
-                router.push(.sheets)
             }
         }
     }
 }
-

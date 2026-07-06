@@ -24,6 +24,7 @@ struct NoteRow: View {
                         Text(note.title)
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .lineLimit(1)
                         
                         Spacer()
                         
@@ -43,7 +44,6 @@ struct NoteRow: View {
                     .foregroundStyle(.tertiary)
                     .padding(.leading, 8)
             }
-            .padding(.horizontal)
         }
     }
 }
