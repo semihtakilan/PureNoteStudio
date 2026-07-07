@@ -36,9 +36,12 @@ final class NoteRepositoryLive: NoteRepository {
 
     func search(matching query: String) throws -> [Note] {
         let descriptor = FetchDescriptor<Note>(
-            predicate: #Predicate { $0.title.localizedStandardContains(query) }
+            predicate: #Predicate { $0.title.localizedStandardContains(query) || $0.contentText.localizedStandardContains(query) },
+            sortBy: [SortDescriptor(\.lastEdit, order: .reverse)]
+            
         )
-        return try modelContext.fetch(descriptor)
+        let notes = try modelContext.fetch(descriptor)
+        return notes
     }
 
     func add(_ note: Note) throws {

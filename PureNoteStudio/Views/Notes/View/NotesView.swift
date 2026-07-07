@@ -26,10 +26,14 @@ struct NotesView: View {
     }
     
     var body: some View {
+        @Bindable var router = router
         VStack(spacing: 16) {
             // MARK: - SearchBar
             SearchBarView(searchText: $viewModel.searchText)
-            .padding(.leading, 8)
+                .onChange(of: viewModel.searchText, { oldValue, newValue in
+                    viewModel.searchWhenWritten(newValue)
+                })
+                .padding(.leading, 8)
             
             // MARK: - Categories
             ChipView(chipDatas: viewModel.chipDatas, selectedChip: $viewModel.selectedChip)
@@ -45,32 +49,35 @@ struct NotesView: View {
             Text("\(viewModel.notes.count) Notes")
                 .font(.footnote)
                 .foregroundColor(.secondary)
-                .padding(.top, 8)
             
             // MARK: - AddNoteButton
             Button {
-                viewModel.isAddNoteSheetPresented.toggle()
-                print(viewModel.isAddNoteSheetPresented)
+                router.presentedSheet = .addNote
             } label: {
                 Image(systemName: "square.and.pencil")
             }
-            .padding(8)
-            .font(.subheadline)
+            .padding(10)
+            .font(.system(size: 20))
+            .bold()
             .foregroundColor(.white)
             .background(Color(.systemBlue))
             .clipShape(Circle())
             .frame(minWidth: 0, maxWidth: .infinity ,alignment: .trailing)
+            .padding(.trailing, 16)
         }
         .navigationTitle("Notes")
         .task {
             viewModel.load()
         }
         .background(Color(.systemGray6))
-        .sheet(isPresented: $viewModel.isAddNoteSheetPresented) {
-            AddNoteSheet { title, content in
-                try viewModel.saveNote(title: title, content: content)
+        .sheet(item: $router.presentedSheet, content: { item in
+            switch item {
+            case .addNote:
+                AddNoteSheet { title, content in
+                    try viewModel.saveNote(title: title, content: content)
+                }
             }
-        }
+        })
     }
     
 }
@@ -90,9 +97,6 @@ extension NotesView {
         .listStyle(.plain)
         .scrollIndicators(.hidden)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .toolbar {
-            Button("Add", systemImage: "plus") {
-            }
-        }
+        .padding(.vertical, 8)
     }
 }

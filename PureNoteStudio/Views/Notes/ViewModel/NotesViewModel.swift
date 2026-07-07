@@ -20,8 +20,6 @@ final class NotesViewModel {
     var selectedChip: ChipData? = nil
     var searchText: String = ""
     
-    var isAddNoteSheetPresented: Bool = false
-    
     init(
         noteRepository: NoteRepository,
         categoryRepository: CategoryRepository
@@ -39,7 +37,7 @@ final class NotesViewModel {
             })
             self.selectedChip = chipDatas.first
         } catch {
-            print("Bir şeyler patladı!!!")
+            print("Bir şeyler patladı!!! \(error)")
         }
     }
     
@@ -69,23 +67,22 @@ final class NotesViewModel {
     func saveNote(title: String, content: String) throws {
         try noteRepository.add(Note(title: title, contentText: content))
         load()
-        isAddNoteSheetPresented = false
     }
     
-    func addSampleNotes() {
+    func searchWhenWritten(_ newValue: String) {
+        let searchText = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !searchText.isEmpty else {
+            load()
+            return
+        }
+        
         do {
-            try noteRepository.add(Note(title: "Deneme 5", contentText: "Rabarba rabbbarba rabarrrrbaaaa", category: categories[2]))
-            try noteRepository.add(Note(title: "Deneme 6", contentText: "Blllaaa bla rabarba biraz daha bla bla", category: categories[1]))
-            try noteRepository.add(Note(title: "Deneme 7", contentText: "Blallalalal bla booşşssss bla bla", category: categories[4]))
-            try noteRepository.add(Note(title: "Deneme 8", contentText: "Bla laylaylom lay lay lom blalalla bla bla", category: categories[3]))
-            notes = try noteRepository.fetchAll()
-            
-            
+            notes = try noteRepository.search(matching: searchText)
         } catch {
-            print("e yeter da artık")
+            print("Ararken kaybolduk!!! \(error)")
         }
     }
-    
 }
 
 extension Collection {

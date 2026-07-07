@@ -11,9 +11,21 @@ enum NotesRoute: Hashable {
     case detail(Note)
 }
 
+enum NotesSheet: Identifiable {
+    case addNote
+    
+    var id: String {
+        switch self {
+        case .addNote:
+            return "Add Note"
+        }
+    }
+}
+
 @Observable
 final class NotesRouter {
     var path = NavigationPath()
+    var presentedSheet: NotesSheet?
     
     func push(_ route: NotesRoute) {
         path.append(route)
@@ -26,5 +38,9 @@ final class NotesRouter {
     
     func popToRoot() {
         path.removeLast(path.count)
+    }
+    
+    func dissmissSheet() {
+        presentedSheet = nil
     }
 }
