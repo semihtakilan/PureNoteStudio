@@ -73,8 +73,8 @@ struct NotesView: View {
         .sheet(item: $router.presentedSheet, content: { item in
             switch item {
             case .addNote:
-                AddNoteSheet { title, content in
-                    try viewModel.saveNote(title: title, content: content)
+                AddNoteSheet { title, attributedText in
+                    try viewModel.saveNote(title: title, attributedText: attributedText)
                 }
             }
         })
