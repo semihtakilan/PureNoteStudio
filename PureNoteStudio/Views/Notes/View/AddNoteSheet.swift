@@ -6,68 +6,87 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct AddNoteSheet: View {
-    let onSave: (String, String) throws -> Void
     @Environment(NotesRouter.self)
     private var router
     
-    @State private var title: String = ""
-    @State private var content: String = ""
-    
+    @State var viewModel: AddNoteSheetViewModel
+    @State private var editorWidth: CGFloat = 300
+
+    init(
+        noteRepository: NoteRepository
+    ) {
+        self._viewModel = State(
+            initialValue: AddNoteSheetViewModel(
+                noteRepository: noteRepository
+            )
+        )
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             
-            // MARK: - TopButtonSection
+            // MARK: - TopToolbar
             HStack {
-                Button("Cancel") {
-                    router.dissmissSheet()
-                }
-                
+                Button("Cancel") { router.dissmissSheet() }
                 Spacer()
-                
                 Button("Save") {
-                    try? onSave(title, content)
+//                    try? view onSave(viewModel.title, viewModel.attributedText)
                     router.dissmissSheet()
                 }
-                .disabled(title.isEmpty)
+                .disabled(viewModel.title.isEmpty)
             }
             .padding(.top, 16)
             
-            Divider()
-                .ignoresSafeArea()
+            Divider().ignoresSafeArea()
             
-            // MARK: - DateSection
+            // MARK: - Date
             Text(Date.now.formatted(
-                .dateTime
-                    .day(.defaultDigits)
-                    .month(.wide)
-                    .year(.defaultDigits)
-                    .hour(.twoDigits(amPM: .abbreviated))
-                    .minute(.twoDigits)
+                .dateTime.day(.defaultDigits).month(.wide).year(.defaultDigits)
+                    .hour(.twoDigits(amPM: .abbreviated)).minute(.twoDigits)
                     .locale(Locale(identifier: "en_US"))
-                )
-            )
-                .font(.subheadline)
-                .opacity(0.5)
-                .frame(minWidth: 0, maxWidth: .infinity ,alignment: .center)
+            ))
+            .font(.subheadline)
+            .opacity(0.5)
+            .frame(maxWidth: .infinity, alignment: .center)
             
-            // MARK: - TitleSection
-            TextField("New Title", text: $title)
+            // MARK: -Title
+            TextField("New Title", text: $viewModel.title)
                 .font(.largeTitle)
                 .bold()
             
-            // MARK: - ContentSection
-            ZStack {
-                if content.isEmpty {
-                    Text("Start typing your note...")
-                        .font(.custom("Helvetica", size: 24))
+            // MARK: - Content
+            RichTextEditor(
+                attributedText: $viewModel.attributedText,
+                placeholder: "Start typing your note..."
+            )
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { editorWidth = geo.size.width }
+                        .onChange(of: geo.size.width) { _, newWidth in
+                            editorWidth = newWidth
+                        }
                 }
-                
-                TextEditor(text: $content)
-                    .font(.custom("Helvetica", size: 24))
+            )
+
+            // MARK: - BottomToolbar
+            HStack {
+                PhotosPicker(selection: $viewModel.selectedPhoto, matching: .images) {
+                    Image(systemName: "photo")
+                }
             }
         }
         .padding()
+        .onChange(of: viewModel.selectedPhoto) { _, newItem in
+            Task {
+                if let data = try? await newItem?.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    await viewModel.insertImage(image, editorWidth: editorWidth)
+                }
+            }
+        }
     }
 }

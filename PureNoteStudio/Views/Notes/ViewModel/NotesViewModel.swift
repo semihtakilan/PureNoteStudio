@@ -7,10 +7,11 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 @Observable
 final class NotesViewModel {
-    private let noteRepository: NoteRepository
+    private(set) var noteRepository: NoteRepository
     private let categoryRepository: CategoryRepository
     
     var notes: [Note] = []
@@ -64,8 +65,11 @@ final class NotesViewModel {
         }
     }
     
-    func saveNote(title: String, content: String) throws {
-        try noteRepository.add(Note(title: title, contentText: content))
+    func saveNote(title: String, attributedText: NSAttributedString) throws {
+        let contentText = attributedText.string
+        let contentData = attributedText.toData()
+        let note = Note(title: title, contentText: contentText, contentData: contentData)
+        try noteRepository.add(note)
         load()
     }
     
@@ -116,5 +120,22 @@ extension Date {
         } else {
             return self.formatted(.dateTime.month(.abbreviated).day(.twoDigits))
         }
+    }
+}
+
+extension NSAttributedString {
+    func toData() -> Data? {
+        try? self.data(
+            from: NSRange(location: 0, length: self.length),
+            documentAttributes: [.documentType: NSAttributedString.DocumentType.rtfd]
+        )
+    }
+    
+    static func from(data: Data) -> NSAttributedString? {
+        try? NSAttributedString(
+            data: data,
+            options: [.documentType: NSAttributedString.DocumentType.rtfd],
+            documentAttributes: nil
+        )
     }
 }
