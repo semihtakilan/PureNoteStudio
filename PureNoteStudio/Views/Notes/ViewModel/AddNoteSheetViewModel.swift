@@ -1,12 +1,19 @@
 import Foundation
-import UIKit
+import SwiftUI
+import PhotosUI
 
 @Observable
 final class AddNoteSheetViewModel {
     var title: String = ""
     var attributedText = NSAttributedString(string: "")
+    var selectedPhoto: PhotosPickerItem?
 
-    
+    let noteRepository: NoteRepository
+
+    init(noteRepository: NoteRepository) {
+        self.noteRepository = noteRepository
+    }
+
     func insertImage(_ image: UIImage, editorWidth: CGFloat) async {
         guard editorWidth > 0,
               image.size.width > 0,
@@ -26,19 +33,17 @@ final class AddNoteSheetViewModel {
         mutableAttr.append(NSAttributedString(attachment: attachment))
         mutableAttr.append(NSAttributedString(string: "\n"))
         attributedText = mutableAttr
+        selectedPhoto = nil
     }
-    
+
     func resizeImage(_ image: UIImage, maxWidth: CGFloat) async -> UIImage {
-        let ratio = image.size.height / image.size.width
-        let targetSize = CGSize(width: maxWidth, height: maxWidth * ratio)
-        
-        guard targetSize.width > 0, targetSize.height > 0,
-              !targetSize.width.isNaN, !targetSize.height.isNaN else {
-            print("Geçersiz targetSize, orijinal image döndürülüyor")
-            return image
-        }
-        
-        let renderer = UIGraphicsImageRenderer(size: targetSize)
-        return renderer.image { _ in image.draw(in: CGRect(origin: .zero, size: targetSize)) }
+        await Task.detached(priority: .userInitiated) {
+            let ratio = image.size.height / image.size.width
+            let targetSize = CGSize(width: maxWidth, height: maxWidth * ratio)
+            guard targetSize.width > 0, targetSize.height > 0,
+                  !targetSize.width.isNaN, !targetSize.height.isNaN else { return image }
+            let renderer = UIGraphicsImageRenderer(size: targetSize)
+            return renderer.image { _ in image.draw(in: CGRect(origin: .zero, size: targetSize)) }
+        }.value
     }
 }

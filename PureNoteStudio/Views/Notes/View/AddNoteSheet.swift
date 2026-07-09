@@ -56,17 +56,25 @@ struct AddNoteSheet: View {
                 attributedText: $viewModel.attributedText,
                 placeholder: "Start typing your note..."
             )
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { editorWidth = geo.size.width }
+                        .onChange(of: geo.size.width) { _, newWidth in
+                            editorWidth = newWidth
+                        }
+                }
+            )
 
-            
             // MARK: - BottomToolbar
             HStack {
-                PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                PhotosPicker(selection: $viewModel.selectedPhoto, matching: .images) {
                     Image(systemName: "photo")
                 }
             }
         }
         .padding()
-        .onChange(of: selectedPhoto) { _, newItem in
+        .onChange(of: viewModel.selectedPhoto) { _, newItem in
             Task {
                 if let data = try? await newItem?.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {

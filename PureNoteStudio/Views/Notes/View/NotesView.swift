@@ -10,6 +10,7 @@ import SwiftData
 
 struct NotesView: View {
     @State var viewModel: NotesViewModel
+
     @Environment(NotesRouter.self)
     private var router
     
@@ -79,7 +80,6 @@ struct NotesView: View {
             }
         })
     }
-    
 }
 
 extension NotesView {

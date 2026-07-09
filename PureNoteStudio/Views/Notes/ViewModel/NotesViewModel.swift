@@ -11,7 +11,7 @@ import UIKit
 
 @Observable
 final class NotesViewModel {
-    private let noteRepository: NoteRepository
+    private(set) var noteRepository: NoteRepository
     private let categoryRepository: CategoryRepository
     
     var notes: [Note] = []
