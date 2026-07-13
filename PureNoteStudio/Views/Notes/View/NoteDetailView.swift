@@ -6,35 +6,47 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct NoteDetailView: View {
-    let note: Note
-    @State private var attributedText: NSAttributedString
-    
+    @State private var viewModel: NoteDetailViewModel
+    @State private var editorWidth: CGFloat = 300
+
     init(note: Note) {
-        self.note = note
-        if let data = note.contentData,
-           let loaded = NSAttributedString.from(data: data) {
-            self._attributedText = State(initialValue: loaded)
-        } else {
-            self._attributedText = State(initialValue: NSAttributedString(string: note.contentText))
-        }
+        self._viewModel = State(initialValue: NoteDetailViewModel(note: note))
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(note.title)
+            Text(viewModel.title)
                 .font(.largeTitle)
                 .bold()
             
-            RichTextEditor(
-                attributedText: $attributedText,
-                placeholder: ""
-            )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            if viewModel.isProcessing {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                RichTextEditor(
+                    attributedText: $viewModel.attributedText,
+                    placeholder: "",
+                    resetStyleTrigger: $viewModel.resetStyleTrigger,
+                    selectedRange: $viewModel.selectedRange
+                )
+            }
         }
         .padding()
         .navigationTitle("")
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear {
+                        editorWidth = geo.size.width - 32
+                    }
+            }
+        )
+        .task(id: editorWidth) {
+            guard editorWidth > 0 else { return }
+            await viewModel.resizeAttachmentsIfNeeded(maxWidth: editorWidth)
+        }
     }
 }
+

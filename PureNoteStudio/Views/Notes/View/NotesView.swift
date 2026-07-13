@@ -45,6 +45,7 @@ struct NotesView: View {
             
             // MARK: - NoteList
             noteListView()
+                .padding(.horizontal, 8)
             
             // MARK: - NotesCount
             Text("\(viewModel.notes.count) Notes")
