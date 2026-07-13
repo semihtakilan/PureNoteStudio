@@ -12,22 +12,46 @@ import UIKit
 
 @Observable
 final class NoteDetailViewModel {
-    
-    func resizeAttachments(in attributedString: NSAttributedString, maxWidth: CGFloat) async -> NSAttributedString {
+    private let note: Note
+
+    var attributedText: NSAttributedString
+    var isProcessing: Bool = true
+    var resetStyleTrigger: Bool = false
+    var selectedRange: NSRange = NSRange(location: 0, length: 0)
+
+    var title: String { note.title }
+
+    init(note: Note) {
+        self.note = note
+        if let data = note.contentData,
+           let loaded = NSAttributedString.from(data: data) {
+            self.attributedText = loaded
+        } else {
+            self.attributedText = NSAttributedString(string: note.contentText)
+        }
+    }
+
+    func resizeAttachmentsIfNeeded(maxWidth: CGFloat) async {
+        isProcessing = true
+        attributedText = await resizeAttachments(in: attributedText, maxWidth: maxWidth)
+        isProcessing = false
+    }
+
+    private func resizeAttachments(in attributedString: NSAttributedString, maxWidth: CGFloat) async -> NSAttributedString {
         let mutableAttr = NSMutableAttributedString(attributedString: attributedString)
         let fullRange = NSRange(location: 0, length: mutableAttr.length)
         
         var attachmentsToReplace: [(NSRange, UIImage)] = []
         
-        mutableAttr.enumerateAttribute(.attachment, in: fullRange, options: []) { value, range, _ in // Objective-C API
-            guard let attachment = value as? NSTextAttachment else { return } // Any object!
+        mutableAttr.enumerateAttribute(.attachment, in: fullRange, options: []) { value, range, _ in
+            guard let attachment = value as? NSTextAttachment else { return }
             
             if let image = attachment.image ?? (attachment.fileWrapper?.regularFileContents.flatMap { UIImage(data: $0) }) {
-                attachmentsToReplace.append((range, image)) // RTFD !
+                attachmentsToReplace.append((range, image))
             }
         }
         
-        for (range, image) in attachmentsToReplace.reversed() { //Batuhan abiye kullanmadığımız senaryoyu açıkla (Defensive Programming)
+        for (range, image) in attachmentsToReplace.reversed() {
             let adjustedWidth = maxWidth - 10
             
             let resizedImage = await image.resized(toMaxWidth: adjustedWidth)

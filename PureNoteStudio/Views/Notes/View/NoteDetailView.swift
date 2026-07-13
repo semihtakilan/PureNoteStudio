@@ -6,39 +6,30 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct NoteDetailView: View {
-    let note: Note
-    
-    @State private var viewModel = NoteDetailViewModel()
-    @State private var attributedText: NSAttributedString
+    @State private var viewModel: NoteDetailViewModel
     @State private var editorWidth: CGFloat = 300
-    @State private var isProcessing: Bool = true
 
     init(note: Note) {
-        self.note = note
-        if let data = note.contentData,
-           let loaded = NSAttributedString.from(data: data) {
-            self._attributedText = State(initialValue: loaded)
-        } else {
-            self._attributedText = State(initialValue: NSAttributedString(string: note.contentText))
-        }
+        self._viewModel = State(initialValue: NoteDetailViewModel(note: note))
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(note.title)
+            Text(viewModel.title)
                 .font(.largeTitle)
                 .bold()
             
-            if isProcessing {
+            if viewModel.isProcessing {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 RichTextEditor(
-                    attributedText: $attributedText,
-                    placeholder: ""
+                    attributedText: $viewModel.attributedText,
+                    placeholder: "",
+                    resetStyleTrigger: $viewModel.resetStyleTrigger,
+                    selectedRange: $viewModel.selectedRange
                 )
             }
         }
@@ -54,9 +45,7 @@ struct NoteDetailView: View {
         )
         .task(id: editorWidth) {
             guard editorWidth > 0 else { return }
-            isProcessing = true
-            attributedText = await viewModel.resizeAttachments(in: attributedText, maxWidth: editorWidth)
-            isProcessing = false
+            await viewModel.resizeAttachmentsIfNeeded(maxWidth: editorWidth)
         }
     }
 }

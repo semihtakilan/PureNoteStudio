@@ -55,7 +55,8 @@ struct AddNoteSheet: View {
             RichTextEditor(
                 attributedText: $viewModel.attributedText,
                 placeholder: "Start typing your note...",
-                resetStyleTrigger: viewModel.shouldResetEditorStyle
+                resetStyleTrigger: $viewModel.shouldResetEditorStyle,
+                selectedRange: $viewModel.selectedRange
             )
             .onChange(of: viewModel.shouldResetEditorStyle) { _, shouldReset in
                 if shouldReset {

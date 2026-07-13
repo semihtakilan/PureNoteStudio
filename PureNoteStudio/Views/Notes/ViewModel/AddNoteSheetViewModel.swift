@@ -8,6 +8,7 @@ final class AddNoteSheetViewModel {
     var attributedText = NSAttributedString(string: "")
     var selectedPhoto: PhotosPickerItem?
     var shouldResetEditorStyle: Bool = false
+    var selectedRange: NSRange = NSRange(location: 0, length: 0)   // NEW
 
     func insertImage(_ image: UIImage, editorWidth: CGFloat) async {
         guard editorWidth > 0,
@@ -16,22 +17,41 @@ final class AddNoteSheetViewModel {
             print("Geçersiz boyut — editorWidth: \(editorWidth), image: \(image.size)")
             return
         }
-        
+
         let resized = await image.resized(toMaxWidth: editorWidth)
-        
+
         let attachment = NSTextAttachment()
         attachment.image = resized
         attachment.bounds = CGRect(x: 0, y: 0, width: editorWidth, height: resized.size.height)
-        
+
+        // FIX: give the surrounding newlines an explicit font so they don't
+        // fall back to the tiny default system font (this was the original
+        // font-shrinking bug).
+        let currentFont = UIFont.preferredFont(forTextStyle: .body)
+        let baseAttributes: [NSAttributedString.Key: Any] = [.font: currentFont]
+
+        let insertion = NSMutableAttributedString()
+        insertion.append(NSAttributedString(string: "\n", attributes: baseAttributes))
+        insertion.append(NSAttributedString(attachment: attachment))
+        insertion.append(NSAttributedString(string: "\n", attributes: baseAttributes))
+
         let mutableAttr = NSMutableAttributedString(attributedString: attributedText)
-        mutableAttr.append(NSAttributedString(string: "\n"))
-        mutableAttr.append(NSAttributedString(attachment: attachment))
-        mutableAttr.append(NSAttributedString(string: "\n"))
+
+        // FIX #2: insert at the cursor position instead of always appending
+        // at the very end. Clamp defensively in case the range is stale
+        // (e.g. text changed elsewhere between the last selection update
+        // and this insert).
+        let safeLocation = min(max(selectedRange.location, 0), mutableAttr.length)
+        mutableAttr.insert(insertion, at: safeLocation)
+
         attributedText = mutableAttr
         selectedPhoto = nil
         shouldResetEditorStyle = true
-    }
 
+        // Move the cursor to just after the inserted content so the next
+        // keystroke continues naturally below the image.
+        selectedRange = NSRange(location: safeLocation + insertion.length, length: 0)
+    }
 }
 
 extension NSAttributedString {
@@ -41,7 +61,7 @@ extension NSAttributedString {
             documentAttributes: [.documentType: NSAttributedString.DocumentType.rtfd]
         )
     }
-    
+
     static func from(data: Data) -> NSAttributedString? {
         try? NSAttributedString(
             data: data,
