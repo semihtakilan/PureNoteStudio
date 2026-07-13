@@ -12,6 +12,7 @@ import UIKit
 struct RichTextEditor: UIViewRepresentable {
     @Binding var attributedText: NSAttributedString
     var placeholder: String = ""
+    var resetStyleTrigger: Bool = false
     
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
@@ -36,6 +37,13 @@ struct RichTextEditor: UIViewRepresentable {
         }
         if uiView.attributedText != attributedText {
             uiView.attributedText = attributedText
+        }
+        
+        if resetStyleTrigger {
+            let resetFont = UIFont.preferredFont(forTextStyle: .body)
+            let newAttributes: [NSAttributedString.Key: Any] = [.font: resetFont]
+
+            uiView.typingAttributes = newAttributes
         }
     }
     

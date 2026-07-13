@@ -54,8 +54,14 @@ struct AddNoteSheet: View {
             // MARK: - Content
             RichTextEditor(
                 attributedText: $viewModel.attributedText,
-                placeholder: "Start typing your note..."
+                placeholder: "Start typing your note...",
+                resetStyleTrigger: viewModel.shouldResetEditorStyle
             )
+            .onChange(of: viewModel.shouldResetEditorStyle) { _, shouldReset in
+                if shouldReset {
+                    viewModel.shouldResetEditorStyle = false
+                }
+            }
             .background(
                 GeometryReader { geo in
                     Color.clear
