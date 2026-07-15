@@ -10,6 +10,9 @@ import SwiftData
 
 struct NotesView: View {
     @State var viewModel: NotesViewModel
+    
+    @Environment(AppDependencies.self)
+    private var appDependencies
 
     @Environment(NotesRouter.self)
     private var router
@@ -75,8 +78,9 @@ struct NotesView: View {
         .sheet(item: $router.presentedSheet, content: { item in
             switch item {
             case .addNote:
-                AddNoteSheet { title, attributedText in
-                    try viewModel.saveNote(title: title, attributedText: attributedText)
+                AddNoteSheet(noteRepository: appDependencies.noteRepository)
+                .onDisappear{
+                    viewModel.load()
                 }
             }
         })

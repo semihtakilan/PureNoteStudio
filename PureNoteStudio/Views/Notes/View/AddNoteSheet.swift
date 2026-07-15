@@ -10,12 +10,15 @@ import PhotosUI
 
 
 struct AddNoteSheet: View {
-    let onSave: (String, NSAttributedString) throws -> Void
+    @State var viewModel: AddNoteSheetViewModel
     
     @Environment(NotesRouter.self)
     private var router
     
-    @State private var viewModel = AddNoteSheetViewModel()
+    init(noteRepository: NoteRepository) {
+        self._viewModel = State(initialValue: AddNoteSheetViewModel(noteRepository: noteRepository))
+    }
+    
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var editorWidth: CGFloat = 300
     
@@ -27,7 +30,7 @@ struct AddNoteSheet: View {
                 Button("Cancel") { router.dissmissSheet() }
                 Spacer()
                 Button("Save") {
-                    try? onSave(viewModel.title, viewModel.attributedText)
+                    try? viewModel.saveNote()
                     router.dissmissSheet()
                 }
                 .disabled(viewModel.title.isEmpty)

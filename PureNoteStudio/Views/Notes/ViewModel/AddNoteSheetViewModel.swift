@@ -4,11 +4,24 @@ import PhotosUI
 
 @Observable
 final class AddNoteSheetViewModel {
+    private let noteRepository: NoteRepository
+    
+    init(noteRepository: NoteRepository) {
+        self.noteRepository = noteRepository
+    }
+    
     var title: String = ""
     var attributedText = NSAttributedString(string: "")
     var selectedPhoto: PhotosPickerItem?
     var shouldResetEditorStyle: Bool = false
     var selectedRange: NSRange = NSRange(location: 0, length: 0)
+    
+    func saveNote() throws {
+        let contentText = attributedText.string
+        let contentData = attributedText.toData()
+        let note = Note(title: title, contentText: contentText, contentData: contentData)
+        try noteRepository.add(note)
+    }
 
     func insertImage(_ image: UIImage, editorWidth: CGFloat) async {
         guard editorWidth > 0,

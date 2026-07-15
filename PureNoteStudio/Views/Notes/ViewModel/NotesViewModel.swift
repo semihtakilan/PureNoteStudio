@@ -64,14 +64,6 @@ final class NotesViewModel {
         }
     }
     
-    func saveNote(title: String, attributedText: NSAttributedString) throws {
-        let contentText = attributedText.string
-        let contentData = attributedText.toData()
-        let note = Note(title: title, contentText: contentText, contentData: contentData)
-        try noteRepository.add(note)
-        load()
-    }
-    
     func searchWhenWritten(_ newValue: String) {
         let searchText = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
         
