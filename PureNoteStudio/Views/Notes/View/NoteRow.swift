@@ -33,7 +33,7 @@ struct NoteRow: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    Text(note.contentText)
+                    Text(note.contentText.trimmingCharacters(in: .whitespacesAndNewlines))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .lineLimit(1)

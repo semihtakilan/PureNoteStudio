@@ -13,7 +13,7 @@ protocol CategoryRepository {
     func addCategory(_ name: String) throws
     func assignNote(_ note: Note,_ category: Category) throws
     func removeFromCategory(_ note: Note, _ category: Category) throws
-    func delete(category: Category) throws
+    func delete(_ category: Category) throws
     func save() throws
 }
 
@@ -47,7 +47,7 @@ final class CategoryRepositoryLive: CategoryRepository {
         try save()
     }
     
-    func delete(category: Category) throws {
+    func delete(_ category: Category) throws {
         modelContext.delete(category)
         try save()
     }

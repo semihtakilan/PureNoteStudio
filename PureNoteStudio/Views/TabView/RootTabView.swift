@@ -28,7 +28,10 @@ struct RootTabView: View {
                 .navigationDestination(for: NotesRoute.self) { route in
                     switch route {
                     case .detail(let note):
-                        NoteDetailView(note: note)
+                        NoteDetailView(
+                            note: note,
+                            noteRepository: appDependencies.noteRepository
+                        )
                     }
                 }
             }
@@ -38,9 +41,16 @@ struct RootTabView: View {
             }
             .tag(Tab.notes)
             
-            NavigationStack {
-                FoldersView()
+            NavigationStack(path: Bindable(router.foldersRouter).path) {
+                FoldersView(categoryRepository: appDependencies.categoryRepository)
+                    .navigationDestination(for: FoldersRoute.self) { route in
+                        switch route {
+                        case .detail(let category):
+                            FolderDetailView(category: category)
+                        }
+                    }
             }
+            .environment(router.foldersRouter)
             .tabItem {
                 Label("Folders", systemImage: "folder")
             }

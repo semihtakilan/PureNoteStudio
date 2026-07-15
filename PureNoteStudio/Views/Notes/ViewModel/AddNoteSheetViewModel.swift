@@ -8,7 +8,7 @@ final class AddNoteSheetViewModel {
     var attributedText = NSAttributedString(string: "")
     var selectedPhoto: PhotosPickerItem?
     var shouldResetEditorStyle: Bool = false
-    var selectedRange: NSRange = NSRange(location: 0, length: 0)   // NEW
+    var selectedRange: NSRange = NSRange(location: 0, length: 0)
 
     func insertImage(_ image: UIImage, editorWidth: CGFloat) async {
         guard editorWidth > 0,
@@ -23,10 +23,7 @@ final class AddNoteSheetViewModel {
         let attachment = NSTextAttachment()
         attachment.image = resized
         attachment.bounds = CGRect(x: 0, y: 0, width: editorWidth, height: resized.size.height)
-
-        // FIX: give the surrounding newlines an explicit font so they don't
-        // fall back to the tiny default system font (this was the original
-        // font-shrinking bug).
+        
         let currentFont = UIFont.preferredFont(forTextStyle: .body)
         let baseAttributes: [NSAttributedString.Key: Any] = [.font: currentFont]
 
@@ -37,10 +34,6 @@ final class AddNoteSheetViewModel {
 
         let mutableAttr = NSMutableAttributedString(attributedString: attributedText)
 
-        // FIX #2: insert at the cursor position instead of always appending
-        // at the very end. Clamp defensively in case the range is stale
-        // (e.g. text changed elsewhere between the last selection update
-        // and this insert).
         let safeLocation = min(max(selectedRange.location, 0), mutableAttr.length)
         mutableAttr.insert(insertion, at: safeLocation)
 
@@ -48,8 +41,6 @@ final class AddNoteSheetViewModel {
         selectedPhoto = nil
         shouldResetEditorStyle = true
 
-        // Move the cursor to just after the inserted content so the next
-        // keystroke continues naturally below the image.
         selectedRange = NSRange(location: safeLocation + insertion.length, length: 0)
     }
 }

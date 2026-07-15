@@ -12,31 +12,59 @@ import UIKit
 
 @Observable
 final class NoteDetailViewModel {
+    private let noteRepository: NoteRepository
     private let note: Note
-
-    var attributedText: NSAttributedString
+    
+    var attributedText: NSAttributedString = NSAttributedString()
     var isProcessing: Bool = true
     var resetStyleTrigger: Bool = false
     var selectedRange: NSRange = NSRange(location: 0, length: 0)
-
+    
+    private var originalContentText: String = ""
+    
     var title: String { note.title }
-
-    init(note: Note) {
+    
+    init(note: Note, noteRepository: NoteRepository) {
         self.note = note
+        self.noteRepository = noteRepository
+        setAttributedText()
+    }
+    
+    private func setAttributedText() {
         if let data = note.contentData,
            let loaded = NSAttributedString.from(data: data) {
             self.attributedText = loaded
         } else {
             self.attributedText = NSAttributedString(string: note.contentText)
         }
+        self.originalContentText = note.contentText
     }
-
+    
+    func onDisappear() {
+        let newContentData = attributedText.toData()
+        let newContentText = attributedText.string
+        
+        guard newContentText != originalContentText else {
+            return
+        }
+        
+        note.contentText = newContentText
+        note.contentData = newContentData
+        note.lastEdit = Date()
+        
+        do {
+            try noteRepository.update(note)
+        } catch {
+            print("Not güncellenemedi \(error)")
+        }
+    }
+    
     func resizeAttachmentsIfNeeded(maxWidth: CGFloat) async {
         isProcessing = true
         attributedText = await resizeAttachments(in: attributedText, maxWidth: maxWidth)
         isProcessing = false
     }
-
+    
     private func resizeAttachments(in attributedString: NSAttributedString, maxWidth: CGFloat) async -> NSAttributedString {
         let mutableAttr = NSMutableAttributedString(attributedString: attributedString)
         let fullRange = NSRange(location: 0, length: mutableAttr.length)

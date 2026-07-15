@@ -9,10 +9,18 @@ import SwiftUI
 
 struct NoteDetailView: View {
     @State private var viewModel: NoteDetailViewModel
-    @State private var editorWidth: CGFloat = 300
+    @State private var editorWidth: CGFloat = 0
 
-    init(note: Note) {
-        self._viewModel = State(initialValue: NoteDetailViewModel(note: note))
+    init(
+        note: Note,
+        noteRepository: NoteRepository
+    ) {
+        self._viewModel = State(
+            initialValue: NoteDetailViewModel(
+                note: note,
+                noteRepository: noteRepository
+            )
+        )
     }
 
     var body: some View {
@@ -46,6 +54,9 @@ struct NoteDetailView: View {
         .task(id: editorWidth) {
             guard editorWidth > 0 else { return }
             await viewModel.resizeAttachmentsIfNeeded(maxWidth: editorWidth)
+        }
+        .onDisappear() {
+            viewModel.onDisappear()
         }
     }
 }
