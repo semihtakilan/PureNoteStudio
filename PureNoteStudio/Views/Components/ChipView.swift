@@ -10,11 +10,9 @@ import SwiftUI
 struct ChipData: Identifiable, Equatable {
     var id: UUID = UUID()
     var name: String
-    private(set) var createdOn: Date
     
-    init(name: String, createdOn: Date) {
+    init(name: String) {
         self.name = name
-        self.createdOn = createdOn
     }
 }
 

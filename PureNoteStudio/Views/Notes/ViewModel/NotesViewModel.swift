@@ -32,9 +32,11 @@ final class NotesViewModel {
         do {
             notes = try noteRepository.fetchAll()
             categories = try categoryRepository.fetchAll()
-            chipDatas = categories.map({ category in
-                return .init(name: category.name, createdOn: category.createdOn)
-            })
+            
+            chipDatas = [ChipData(name: "All")] + categories.map { category in
+                ChipData(name: category.name)
+            }
+            
             self.selectedChip = chipDatas.first
         } catch {
             print("Bir şeyler patladı!!! \(error)")

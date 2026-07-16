@@ -13,7 +13,6 @@ final class Category {
     var id: UUID = UUID()
     var name: String
     var isSelected: Bool = false
-    private(set) var createdOn: Date = Date()
     
     @Relationship(deleteRule: .nullify, inverse: \Note.category)
     var notes: [Note] = []
