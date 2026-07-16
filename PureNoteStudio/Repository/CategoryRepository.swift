@@ -26,7 +26,7 @@ final class CategoryRepositoryLive: CategoryRepository {
     
     func fetchAll() throws -> [Category] {
         let descriptor = FetchDescriptor<Category>(
-            sortBy: [SortDescriptor(\.createdOn)]
+            sortBy: [SortDescriptor(\.name)]
         )
         return try modelContext.fetch(descriptor)
     }

@@ -10,15 +10,11 @@ import Foundation
 @Observable
 final class FoldersViewModel {
     private let categoryRepository: CategoryRepository
-    private let rowHeight: CGFloat = 52
-    private let maxVisibleRows = 5
     
     var categories: [Category] = []
     
-    var listHeight: CGFloat {
-            let visibleRowCount = min(categories.count, maxVisibleRows)
-            return CGFloat(visibleRowCount) * rowHeight
-        }
+    var presentedAlert: Bool = false
+    var categoryName: String = ""
     
     init(categoryRepository: CategoryRepository) {
         self.categoryRepository = categoryRepository
@@ -42,6 +38,23 @@ final class FoldersViewModel {
         } catch {
             print("Category delete error \(error)")
         }
+    }
+    
+    func alertCancel() {
+        presentedAlert = false
+        categoryName = ""
+    }
+    
+    func addCategory() {
+        do {
+            try categoryRepository.addCategory(categoryName)
+        } catch {
+            print("Category add error: \(error)")
+        }
+        presentedAlert = false
+        categoryName = ""
+        
+        load()
     }
 
 }

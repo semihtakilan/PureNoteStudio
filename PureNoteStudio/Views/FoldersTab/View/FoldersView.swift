@@ -40,7 +40,7 @@ struct FoldersView: View {
             
             // MARK: - AddCategoryButton
             Button {
-                router.presentedSheet = .addCategory
+                viewModel.presentedAlert = true
             } label: {
                 Image(systemName: "folder.badge.plus")
             }
@@ -52,17 +52,21 @@ struct FoldersView: View {
             .clipShape(Circle())
             .frame(minWidth: 0, maxWidth: .infinity ,alignment: .trailing)
             .padding(.trailing, 16)
+            .alert("New Folder", isPresented: $viewModel.presentedAlert) {
+                TextField("Unnamed folder", text: $viewModel.categoryName)
+                
+                Button("Cancel", role: .cancel) {
+                    viewModel.alertCancel()
+                }
+                Button("OK") {
+                    viewModel.addCategory()
+                }
+            }
         }
         .navigationTitle("Folders")
         .task {
             viewModel.load()
         }
         .background(Color(.systemGray6))
-        .sheet(item: $router.presentedSheet) { item in
-            switch item {
-            case .addCategory:
-                AddCategorySheet()
-            }
-        }
     }
 }
