@@ -8,12 +8,11 @@
 import Foundation
 
 enum Tab: Hashable {
-    case notes, folders, settings
+    case notes, settings
 }
 
 @Observable
 final class TabRouter {
     var selectedTab: Tab = .notes
     private(set) var notesRouter: NotesRouter = .init()
-    private(set) var foldersRouter: FoldersRouter = .init()
 }

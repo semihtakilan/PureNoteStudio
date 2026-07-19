@@ -13,12 +13,14 @@ struct NoteDetailView: View {
 
     init(
         note: Note,
-        noteRepository: NoteRepository
+        noteRepository: NoteRepository,
+        categoryRepository: CategoryRepository
     ) {
         self._viewModel = State(
             initialValue: NoteDetailViewModel(
                 note: note,
-                noteRepository: noteRepository
+                noteRepository: noteRepository,
+                categoryRepository: categoryRepository
             )
         )
     }
@@ -51,6 +53,26 @@ struct NoteDetailView: View {
                     }
             }
         )
+        .toolbar{
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button("Reminder") {
+                        
+                    }
+                    
+                    Button("Move to") {
+                        
+                    }
+                    
+                    Button("Delete") {
+                        
+                    }
+                    
+                } label : {
+                    Label("Options", systemImage: "ellipsis")
+                }
+            }
+        }
         .task(id: editorWidth) {
             guard editorWidth > 0 else { return }
             await viewModel.resizeAttachmentsIfNeeded(maxWidth: editorWidth)

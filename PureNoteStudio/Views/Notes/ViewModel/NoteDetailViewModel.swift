@@ -13,6 +13,7 @@ import UIKit
 @Observable
 final class NoteDetailViewModel {
     private let noteRepository: NoteRepository
+    private let categoryRepository: CategoryRepository
     private let note: Note
     
     var attributedText: NSAttributedString = NSAttributedString()
@@ -24,9 +25,10 @@ final class NoteDetailViewModel {
     
     var title: String { note.title }
     
-    init(note: Note, noteRepository: NoteRepository) {
+    init(note: Note, noteRepository: NoteRepository, categoryRepository: CategoryRepository) {
         self.note = note
         self.noteRepository = noteRepository
+        self.categoryRepository = categoryRepository
         setAttributedText()
     }
     
@@ -57,6 +59,10 @@ final class NoteDetailViewModel {
         } catch {
             print("Not güncellenemedi \(error)")
         }
+    }
+    
+    func moveToCategory() {
+        
     }
     
     func resizeAttachmentsIfNeeded(maxWidth: CGFloat) async {

@@ -16,7 +16,6 @@ protocol NoteRepository {
     func delete(_ note: Note) throws
     func filter(chip: String) -> [Note]
     func save() throws
-    
 }
 
 final class NoteRepositoryLive: NoteRepository {

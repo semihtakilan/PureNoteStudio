@@ -2,16 +2,16 @@
 //  FoldersView.swift
 //  PureNoteStudio
 //
-//  Created by Semih TAKILAN on 28.06.2026.
+//  Created by Semih TAKILAN on 16.07.2026.
 //
 
 import SwiftUI
 
 struct FoldersView: View {
-    @Environment(FoldersRouter.self)
-    private var router
-    
     @State private var viewModel: FoldersViewModel
+    
+    @Environment(NotesRouter.self)
+    private var router
     
     init(categoryRepository: CategoryRepository) {
         self._viewModel = State(
@@ -20,25 +20,21 @@ struct FoldersView: View {
     }
     
     var body: some View {
-        @Bindable var router = router
-        
-        VStack(spacing: 16) {
+        VStack {
             
-            // MARK: - CategoriesList
+            // MARK: - FoldersRow
             List {
+                FolderRow(category: Category(name: "All"))
+                
                 ForEach(viewModel.categories) { category in
-                    CategoryRow(category: category)
+                    FolderRow(category: category)
                 }
                 .onDelete { IndexSet in
                     viewModel.deleteWhenSwipe(IndexSet)
                 }
             }
-            .listStyle(.plain)
-            .scrollIndicators(.hidden)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .padding(.horizontal, 8)
             
-            // MARK: - AddCategoryButton
+            // MARK: - AddFolderButton
             Button {
                 viewModel.presentedAlert = true
             } label: {
@@ -68,5 +64,27 @@ struct FoldersView: View {
             viewModel.load()
         }
         .background(Color(.systemGray6))
+    }
+}
+
+extension FoldersView {
+    func FolderRow(category: Category) -> some View {
+        Button {
+            router.pendingSelectedChipName = category.name
+            router.pop()
+        } label: {
+            HStack {
+                Image(systemName: "folder.fill")
+                
+                Text(category.name)
+                    .font(.headline)
+                
+                Spacer()
+                
+                Text(category.notes.count.description)
+            }
+        }
+        .foregroundColor(.primary)
+        
     }
 }

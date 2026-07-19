@@ -22,25 +22,39 @@ struct ChipView: View {
     
     var body: some View {
         ScrollView(.horizontal) {
-            HStack {
-                ForEach(chipDatas) { chip in
-                    let isSelected = chip.id == selectedChip?.id
-                    Button {
-                        selectedChip = chip
+            ScrollViewReader { proxy in
+                HStack {
+                    ForEach(chipDatas) { chip in
+                        let isSelected = chip.id == selectedChip?.id
+                        Button {
+                            selectedChip = chip
+                        }
+                        label: {
+                            Text(chip.name)
+                        }
+                        .padding(8)
+                        .padding(.horizontal, 8)
+                        .font(.subheadline)
+                        .foregroundStyle(isSelected ? .white : .primary)
+                        .background(isSelected ? Color(.systemBlue) : Color(.systemGray5))
+                        .clipShape(RoundedRectangle(cornerRadius: 24))
+                        .id(chip.name)
                     }
-                    label: {
-                        Text(chip.name)
+                }
+                .onChange(of: selectedChip?.name) { _, newValue in
+                    if let newName = newValue {
+                        Task { @MainActor in
+                            try? await Task.sleep(for: .seconds(0.1))
+                            
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8, blendDuration: 0)) {
+                                proxy.scrollTo(newName, anchor: .center)
+                            }
+                        }
                     }
-                    .padding(8)
-                    .padding(.horizontal, 8)
-                    .font(.subheadline)
-                    .foregroundStyle(isSelected ? .white : .primary)
-                    .background(isSelected ? Color(.systemBlue) : Color(.systemGray5))
-                    .clipShape(RoundedRectangle(cornerRadius: 24))
-                               
                 }
             }
         }
+        .clipShape(RoundedRectangle(cornerRadius: 24))
         .scrollIndicators(.hidden)
     }
 }

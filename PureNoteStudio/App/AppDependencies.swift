@@ -15,7 +15,7 @@ final class AppDependencies {
     
     let noteRepository: NoteRepository
     let categoryRepository: CategoryRepository
-
+    
     init() {
         let schema = Schema([Note.self, Category.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)

@@ -13,7 +13,7 @@ struct NotesView: View {
     
     @Environment(AppDependencies.self)
     private var appDependencies
-
+    
     @Environment(NotesRouter.self)
     private var router
     
@@ -37,23 +37,41 @@ struct NotesView: View {
                 .onChange(of: viewModel.searchText, { oldValue, newValue in
                     viewModel.searchWhenWritten(newValue)
                 })
-                .padding(.leading, 8)
+                .padding(.horizontal, 8)
             
             // MARK: - Categories
-            ChipView(chipDatas: viewModel.chipDatas, selectedChip: $viewModel.selectedChip)
-                .onChange(of: viewModel.selectedChip?.name ?? "All") { oldValue, newValue in
-                    viewModel.handleChipChange(newValue)
+            HStack {
+                ChipView(chipDatas: viewModel.chipDatas, selectedChip: $viewModel.selectedChip)
+                    .onChange(of: viewModel.selectedChip?.name ?? "All") { oldValue, newValue in
+                        viewModel.handleChipChange(newValue)
+                    }
+                
+                Button {
+                    router.push(.folders)
+                } label: {
+                    Image(systemName: "folder")
                 }
-                .padding(.leading, 8)
+                .padding(8)
+                .padding(.horizontal, 8)
+                .font(.headline)
+                .foregroundStyle(.primary)
+                .background(Color(.systemGray5))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+            .padding(.horizontal, 8)
+            .onAppear {
+                resolvePendingChip()
+            }
+            .onChange(of: router.pendingSelectedChipName) { _, _ in
+                resolvePendingChip()
+            }
             
             // MARK: - NoteList
             noteListView()
                 .padding(.horizontal, 8)
             
             // MARK: - NotesCount
-            Text("\(viewModel.notes.count) Notes")
-                .font(.footnote)
-                .foregroundColor(.secondary)
+            
             
             // MARK: - AddNoteButton
             Button {
@@ -70,6 +88,9 @@ struct NotesView: View {
             .frame(minWidth: 0, maxWidth: .infinity ,alignment: .trailing)
             .padding(.trailing, 16)
         }
+        .onAppear{
+            viewModel.load()
+        }
         .navigationTitle("Notes")
         .task {
             viewModel.load()
@@ -79,9 +100,9 @@ struct NotesView: View {
             switch item {
             case .addNote:
                 AddNoteSheet(noteRepository: appDependencies.noteRepository)
-                .onDisappear{
-                    viewModel.load()
-                }
+                    .onDisappear{
+                        viewModel.load()
+                    }
             }
         })
     }
@@ -98,10 +119,25 @@ extension NotesView {
             .onDelete { indexSet in
                 viewModel.deleteWhenSwipe(indexSet)
             }
+            
+            Text("\(viewModel.notes.count.description) Notes")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .listRowSeparator(.hidden)
         }
         .listStyle(.plain)
         .scrollIndicators(.hidden)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .padding(.vertical, 8)
+    }
+    
+    private func resolvePendingChip() {
+        if let folderName = router.pendingSelectedChipName,
+           let matchedChip = viewModel.chipDatas.first(where: { $0.name == folderName }) {
+            
+            viewModel.selectedChip = matchedChip
+            viewModel.handleChipChange(folderName)
+            router.pendingSelectedChipName = nil
+        }
     }
 }

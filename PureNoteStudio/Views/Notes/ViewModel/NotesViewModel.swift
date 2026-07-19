@@ -37,7 +37,14 @@ final class NotesViewModel {
                 ChipData(name: category.name)
             }
             
-            self.selectedChip = chipDatas.first
+            if let currentChip = selectedChip,
+               let matched = chipDatas.first(where: { $0.name == currentChip.name }) {
+                self.selectedChip = matched
+                self.handleChipChange(matched.name)
+            } else {
+                self.selectedChip = chipDatas.first
+                self.notes = try noteRepository.fetchAll()
+            }
         } catch {
             print("Bir şeyler patladı!!! \(error)")
         }
@@ -108,7 +115,7 @@ extension Date {
             formatter.dateStyle = .medium
             formatter.doesRelativeDateFormatting = true
             return formatter.string(from: self)
-        } else if dayPassed >= 6 {
+        } else if dayPassed < 6 {
             return self.formatted(.dateTime.weekday(.wide))
         } else {
             return self.formatted(.dateTime.month(.abbreviated).day(.twoDigits))
