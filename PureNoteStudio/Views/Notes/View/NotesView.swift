@@ -84,8 +84,9 @@ struct NotesView: View {
             // MARK: - Categories
             HStack {
                 ChipView(chipDatas: viewModel.chipDatas, selectedChip: $viewModel.selectedChip)
-                    .onChange(of: viewModel.selectedChip?.name ?? "All") { oldValue, newValue in
-                        viewModel.handleChipChange(newValue)
+                    .onChange(of: viewModel.selectedChip) { oldValue, newValue in
+                        guard let filter = newValue?.filter else { return }
+                        viewModel.handleChipChange(filter)
                     }
 
                 Button {
@@ -101,12 +102,12 @@ struct NotesView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .padding(.horizontal, 8)
-            .onAppear {
-                viewModel.resolvePendingChip(router: router)
-            }
-            .onChange(of: router.pendingSelectedChipName) { _, _ in
-                viewModel.resolvePendingChip(router: router)
-            }
+//            .onAppear {
+//                viewModel.resolvePendingChip(router: router)
+//            }
+//            .onChange(of: router.pendingSelectedChipName) { _, _ in
+//                viewModel.resolvePendingChip(router: router)
+//            }
 
             // MARK: - NoteList
             noteListView()

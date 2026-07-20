@@ -38,7 +38,8 @@ struct RootTabView: View {
                     case .folders:
                         FoldersView(
                             noteRepository: appDependencies.noteRepository,
-                            categoryRepository: appDependencies.categoryRepository
+                            categoryRepository: appDependencies.categoryRepository,
+                            selectedChip: .constant(nil)
                         )
                         
                     case .moveToFolder(let note):

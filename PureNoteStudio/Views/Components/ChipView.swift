@@ -10,16 +10,18 @@ import SwiftUI
 struct ChipData: Identifiable, Equatable {
     var id: UUID = UUID()
     var name: String
-    
-    init(name: String) {
-        self.name = name
+    var filter: CategoryFilter
+
+    init(filter: CategoryFilter) {
+        self.filter = filter
+        self.name = filter.title
     }
 }
 
 struct ChipView: View {
     let chipDatas: [ChipData]
     @Binding var selectedChip: ChipData?
-    
+
     var body: some View {
         ScrollView(.horizontal) {
             ScrollViewReader { proxy in
@@ -45,7 +47,7 @@ struct ChipView: View {
                     if let newName = newValue {
                         Task { @MainActor in
                             try? await Task.sleep(for: .seconds(0.1))
-                            
+
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.8, blendDuration: 0)) {
                                 proxy.scrollTo(newName, anchor: .center)
                             }

@@ -8,6 +8,54 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - Sabit (fixed) case'ler
+enum FixedCategory: String, CaseIterable, Identifiable {
+    case all
+    case uncategorized
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .all: return "All"
+        case .uncategorized: return "Uncategorized"
+        }
+    }
+}
+
+// MARK: - Filtre enum'u (sabit + dinamik kategoriler)
+enum CategoryFilter: Hashable, Identifiable {
+    case fixed(FixedCategory)
+    case custom(Category)
+
+    var id: String {
+        switch self {
+        case .fixed(let f): return f.id
+        case .custom(let c): return c.persistentModelID.storeIdentifier ?? c.name
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .fixed(let f): return f.title
+        case .custom(let c): return c.name
+        }
+    }
+
+    var canDelete: Bool {
+        if case .custom = self { return true }
+        return false
+    }
+
+    static let all: CategoryFilter = .fixed(.all)
+    static let uncategorized: CategoryFilter = .fixed(.uncategorized)
+
+    static func allCases(from categories: [Category]) -> [CategoryFilter] {
+        guard !categories.isEmpty else { return [.all] }
+        return [.all] + categories.map(CategoryFilter.custom) + [.uncategorized]
+    }
+}
+
 enum ViewState<T: Equatable>: Equatable {
     case idle
     case success(T)
@@ -27,7 +75,6 @@ final class NotesViewModel {
 
     var state: ViewState<[Note]> = .idle
 
-    // Tek doğruluk kaynağı: state. notes artık ondan türetiliyor.
     var notes: [Note] {
         if case .success(let notes) = state { return notes }
         return []
@@ -35,7 +82,7 @@ final class NotesViewModel {
 
     var showEmptyView: Bool {
         if case .success(let notes) = state {
-            return notes.isEmpty
+            return notes.isEmpty && categories.isEmpty
         }
         return false
     }
@@ -48,25 +95,20 @@ final class NotesViewModel {
         self.categoryRepository = categoryRepository
     }
 
+    @MainActor
     func load() {
         do {
             let fetchedNotes = try noteRepository.fetchAll()
             categories = try categoryRepository.fetchAll()
 
-            var chips = [ChipData(name: "All")]
-            chips.append(contentsOf: categories.map { ChipData(name: $0.name) })
-
-            if !categories.isEmpty {
-                chips.append(ChipData(name: "Uncategorized"))
-            }
-            self.chipDatas = chips
+            chipDatas = CategoryFilter.allCases(from: categories).map(ChipData.init)
 
             if let currentChip = selectedChip,
                let matched = chipDatas.first(where: { $0.name == currentChip.name }) {
                 selectedChip = matched
-                handleChipChange(matched.name)
+                handleChipChange(matched.filter)
             } else {
-                self.selectedChip = chipDatas.first
+                selectedChip = chipDatas.first
                 state = .success(fetchedNotes)
             }
         } catch {
@@ -74,17 +116,18 @@ final class NotesViewModel {
         }
     }
 
-    func handleChipChange(_ newValue: String) {
+    func handleChipChange(_ filter: CategoryFilter) {
         do {
             let filtered: [Note]
 
-            if newValue == "All" {
+            switch filter {
+            case .fixed(.all):
                 filtered = try noteRepository.fetchAll()
-            } else if newValue == "Uncategorized" {
+            case .fixed(.uncategorized):
                 let allNotes = try noteRepository.fetchAll()
                 filtered = allNotes.filter { $0.category == nil }
-            } else {
-                filtered = noteRepository.filter(chip: newValue)
+            case .custom(let category):
+                filtered = noteRepository.filter(chip: category.name)
             }
 
             state = .success(filtered)
@@ -93,15 +136,15 @@ final class NotesViewModel {
         }
     }
 
-    func resolvePendingChip(router: NotesRouter) {
-        if let folderName = router.pendingSelectedChipName,
-           let matchedChip = chipDatas.first(where: { $0.name == folderName }) {
-
-            selectedChip = matchedChip
-            handleChipChange(folderName)
-            router.pendingSelectedChipName = nil
-        }
-    }
+//    func resolvePendingChip(router: NotesRouter) {
+//        if let folderName = router.pendingSelectedChipName,
+//           let matchedChip = chipDatas.first(where: { $0.name == folderName }) {
+//
+//            selectedChip = matchedChip
+//            handleChipChange(matchedChip.filter)
+//            router.pendingSelectedChipName = nil
+//        }
+//    }
 
     func deleteWhenSwipe(_ indexSet: IndexSet) {
         guard let index = indexSet.first,

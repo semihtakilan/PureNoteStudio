@@ -12,7 +12,8 @@ final class FoldersViewModel {
     private let noteRepository: NoteRepository
     private let categoryRepository: CategoryRepository
     
-    var categories: [Category] = []
+    var categories: [CategoryFilter] = []
+    var categoryData: [Category] = []
     var totalNotesCount: Int = 0
     var uncategorizedNotesCount: Int = 0
     
@@ -26,12 +27,10 @@ final class FoldersViewModel {
     
     func load() {
         do {
-            categories = try categoryRepository.fetchAll()
-            
-            let allNotes = try noteRepository.fetchAll()
-            totalNotesCount = allNotes.count
-            uncategorizedNotesCount = allNotes.filter { $0.category == nil }.count
-            
+            let data = try categoryRepository.fetchAll()
+            let fetchedNotes = try noteRepository.fetchAll()
+            self.categories = CategoryFilter.allCases(from: data)
+            self.categoryData = data
         } catch {
             print("Category load error \(error)")
         }
@@ -39,16 +38,18 @@ final class FoldersViewModel {
     
     func deleteWhenSwipe(_ indexSet: IndexSet) {
         guard let index = indexSet.first,
-              let category = categories.get(index)
+              let filter = categories.get(index),
+              case .custom(let category) = filter
         else { return }
+
         do {
             try categoryRepository.delete(category)
-            categories = try categoryRepository.fetchAll()
+            load()
         } catch {
             print("Category delete error \(error)")
         }
     }
-    
+
     func alertCancel() {
         presentedAlert = false
         categoryName = ""

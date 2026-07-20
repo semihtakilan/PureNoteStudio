@@ -12,11 +12,22 @@ struct FoldersView: View {
     
     @Environment(NotesRouter.self)
     private var router
-    
-    init(noteRepository: NoteRepository, categoryRepository: CategoryRepository) {
+
+    @Binding
+    var selectedChip: ChipData?
+
+    init(
+        noteRepository: NoteRepository,
+        categoryRepository: CategoryRepository,
+        selectedChip: Binding<ChipData?>
+    ) {
         self._viewModel = State(
-            initialValue: FoldersViewModel(noteRepository: noteRepository, categoryRepository: categoryRepository)
+            initialValue: FoldersViewModel(
+                noteRepository: noteRepository,
+                categoryRepository: categoryRepository
+            )
         )
+        self._selectedChip = selectedChip
     }
     
     var body: some View {
@@ -24,23 +35,22 @@ struct FoldersView: View {
             
             // MARK: - FoldersRow
             List {
-                FolderRow(category: Category(name: "All"), customCount: viewModel.totalNotesCount)
-                
                 ForEach(viewModel.categories) { category in
-                    FolderRow(category: category)
-                }
-                .onDelete { IndexSet in
-                    viewModel.deleteWhenSwipe(IndexSet)
-                }
-                
-                if !viewModel.categories.isEmpty {
-                    FolderRow(
-                        category: Category(name: "Uncategorized"),
-                        customCount: viewModel.uncategorizedNotesCount
-                    )
+                    folderRow(category: category)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: category.canDelete) {
+                            if category.canDelete {
+                                Button(role: .destructive) {
+                                    if let index = viewModel.categories.firstIndex(where: { $0.id == category.id }) {
+                                        viewModel.deleteWhenSwipe(IndexSet(integer: index))
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                        }
                 }
             }
-            
+
             // MARK: - AddFolderButton
             Button {
                 viewModel.presentedAlert = true
@@ -75,20 +85,19 @@ struct FoldersView: View {
 }
 
 extension FoldersView {
-    func FolderRow(category: Category, customCount: Int? = nil) -> some View {
+    func folderRow(category: CategoryFilter, customCount: Int? = nil) -> some View {
         Button {
-            router.pendingSelectedChipName = category.name
             router.pop()
         } label: {
             HStack {
                 Image(systemName: "folder.fill")
                 
-                Text(category.name)
+                Text(category.title)
                     .font(.headline)
                 
                 Spacer()
                 
-                Text((customCount ?? category.notes.count).description)
+//                Text((customCount ?? category.notes.count).description)
             }
         }
         .foregroundColor(.primary)
