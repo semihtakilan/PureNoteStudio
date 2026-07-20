@@ -39,8 +39,8 @@ final class NotesViewModel {
             
             if let currentChip = selectedChip,
                let matched = chipDatas.first(where: { $0.name == currentChip.name }) {
-                self.selectedChip = matched
-                self.handleChipChange(matched.name)
+                selectedChip = matched
+                handleChipChange(matched.name)
             } else {
                 self.selectedChip = chipDatas.first
                 self.notes = try noteRepository.fetchAll()
@@ -58,6 +58,16 @@ final class NotesViewModel {
             }
         } else {
             notes = noteRepository.filter(chip: newValue)
+        }
+    }
+    
+    func resolvePendingChip(router: NotesRouter) {
+        if let folderName = router.pendingSelectedChipName,
+           let matchedChip = chipDatas.first(where: { $0.name == folderName }) {
+            
+            selectedChip = matchedChip
+            handleChipChange(folderName)
+            router.pendingSelectedChipName = nil
         }
     }
     

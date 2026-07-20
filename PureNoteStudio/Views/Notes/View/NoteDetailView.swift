@@ -10,6 +10,9 @@ import SwiftUI
 struct NoteDetailView: View {
     @State private var viewModel: NoteDetailViewModel
     @State private var editorWidth: CGFloat = 0
+    
+    @Environment(NotesRouter.self)
+    private var router
 
     init(
         note: Note,
@@ -61,7 +64,7 @@ struct NoteDetailView: View {
                     }
                     
                     Button("Move to") {
-                        
+                        router.push(.moveToFolder(viewModel.note))
                     }
                     
                     Button("Delete") {

@@ -14,7 +14,7 @@ import UIKit
 final class NoteDetailViewModel {
     private let noteRepository: NoteRepository
     private let categoryRepository: CategoryRepository
-    private let note: Note
+    private(set) var note: Note
     
     var attributedText: NSAttributedString = NSAttributedString()
     var isProcessing: Bool = true

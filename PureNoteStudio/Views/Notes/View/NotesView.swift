@@ -60,10 +60,10 @@ struct NotesView: View {
             }
             .padding(.horizontal, 8)
             .onAppear {
-                resolvePendingChip()
+                viewModel.resolvePendingChip(router: router)
             }
             .onChange(of: router.pendingSelectedChipName) { _, _ in
-                resolvePendingChip()
+                viewModel.resolvePendingChip(router: router)
             }
             
             // MARK: - NoteList
@@ -129,15 +129,5 @@ extension NotesView {
         .listStyle(.plain)
         .scrollIndicators(.hidden)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-    
-    private func resolvePendingChip() {
-        if let folderName = router.pendingSelectedChipName,
-           let matchedChip = viewModel.chipDatas.first(where: { $0.name == folderName }) {
-            
-            viewModel.selectedChip = matchedChip
-            viewModel.handleChipChange(folderName)
-            router.pendingSelectedChipName = nil
-        }
     }
 }

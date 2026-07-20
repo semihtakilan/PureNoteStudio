@@ -1,21 +1,21 @@
 //
-//  FoldersViewModel.swift
+//  MoveToFolderViewModel.swift
 //  PureNoteStudio
 //
-//  Created by Semih TAKILAN on 16.07.2026.
+//  Created by Semih TAKILAN on 20.07.2026.
 //
 
 import Foundation
 
 @Observable
-final class FoldersViewModel {
+final class MoveToFolderViewModel {
+    private let note: Note
     private let categoryRepository: CategoryRepository
+    
     var categories: [Category] = []
     
-    var presentedAlert: Bool = false
-    var categoryName: String = ""
-    
-    init(categoryRepository: CategoryRepository) {
+    init(note: Note, categoryRepository: CategoryRepository) {
+        self.note = note
         self.categoryRepository = categoryRepository
     }
     
@@ -39,23 +39,8 @@ final class FoldersViewModel {
         }
     }
     
-    func alertCancel() {
-        presentedAlert = false
-        categoryName = ""
+    func moveNote(to category: Category) {
+        note.category = category
+        category.notes.append(note)
     }
-    
-    func addCategory() {
-        do {
-            try categoryRepository.addCategory(categoryName)
-        } catch {
-            print("Category add error: \(error)")
-        }
-        presentedAlert = false
-        categoryName = ""
-        
-        load()
-    }
-    
-    
-    
 }

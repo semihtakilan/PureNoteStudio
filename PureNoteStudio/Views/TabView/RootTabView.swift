@@ -35,6 +35,11 @@ struct RootTabView: View {
                         )
                     case .folders:
                         FoldersView(categoryRepository: appDependencies.categoryRepository)
+                    case .moveToFolder(let note):
+                        MoveToFolder(
+                            note: note,
+                            categoryRepository: appDependencies.categoryRepository
+                        )
                     }
                 }
             }

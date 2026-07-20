@@ -10,6 +10,7 @@ import SwiftUI
 enum NotesRoute: Hashable {
     case detail(Note)
     case folders
+    case moveToFolder(Note)
 }
 
 enum NotesSheet: Identifiable {
