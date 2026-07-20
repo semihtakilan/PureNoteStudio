@@ -10,13 +10,13 @@ import SwiftData
 
 struct NotesView: View {
     @State var viewModel: NotesViewModel
-    
+
     @Environment(AppDependencies.self)
     private var appDependencies
-    
+
     @Environment(NotesRouter.self)
     private var router
-    
+
     init(
         noteRepository: NoteRepository,
         categoryRepository: CategoryRepository
@@ -28,32 +28,51 @@ struct NotesView: View {
             )
         )
     }
-    
+
     var body: some View {
+        @Bindable var router = router
+
         Group {
             switch viewModel.state {
             case .idle:
-                Color.red
-            case .success(let _):
+                ProgressView()
+            case .success:
                 if viewModel.showEmptyView {
-                    ContentUnavailableView("Henüz veri yok", image: "tray")
+                    ContentUnavailableView(
+                        "Henüz veri yok",
+                        systemImage: "tray",
+                        description: Text("İlk notunuzu eklemek için sağ alttaki butona dokunun")
+                    )
                 } else {
                     successView
                 }
-            case .error:
-                ContentUnavailableView("Error", image: "Error!!!")
+            case .error(let message):
+                ContentUnavailableView(
+                    "Bir hata oluştu",
+                    systemImage: "exclamationmark.triangle",
+                    description: Text(message)
+                )
             }
         }
-        .onAppear{
-            viewModel.load()
+        .sheet(item: $router.presentedSheet, content: { item in
+            switch item {
+            case .addNote:
+                AddNoteSheet(noteRepository: appDependencies.noteRepository)
+                    .onDisappear {
+                        viewModel.load()
+                    }
+            }
+        })
+        .overlay(alignment: .bottomTrailing) {
+            addNoteButton
         }
         .navigationTitle("Notes")
         .task {
             viewModel.load()
         }
     }
-    
-    var successView: some View {
+
+    private var successView: some View {
         VStack(spacing: 16) {
             // MARK: - SearchBar
             SearchBarView(searchText: $viewModel.searchText)
@@ -61,14 +80,14 @@ struct NotesView: View {
                     viewModel.searchWhenWritten(newValue)
                 })
                 .padding(.horizontal, 8)
-            
+
             // MARK: - Categories
             HStack {
                 ChipView(chipDatas: viewModel.chipDatas, selectedChip: $viewModel.selectedChip)
                     .onChange(of: viewModel.selectedChip?.name ?? "All") { oldValue, newValue in
                         viewModel.handleChipChange(newValue)
                     }
-                
+
                 Button {
                     router.push(.folders)
                 } label: {
@@ -88,36 +107,33 @@ struct NotesView: View {
             .onChange(of: router.pendingSelectedChipName) { _, _ in
                 viewModel.resolvePendingChip(router: router)
             }
-            
+
             // MARK: - NoteList
             noteListView()
                 .padding(.horizontal, 8)
-            
-            // MARK: - NotesCount
-            
-            
-            // MARK: - AddNoteButton
-            Button {
-                router.presentedSheet = .addNote
-            } label: {
-                Image(systemName: "square.and.pencil")
-            }
-            .padding(10)
-            .font(.system(size: 20))
-            .bold()
-            .foregroundColor(.white)
-            .background(Color(.systemBlue))
-            .clipShape(Circle())
-            .frame(minWidth: 0, maxWidth: .infinity ,alignment: .trailing)
-            .padding(.trailing, 16)
         }
-
         .background(Color(.systemGray6))
+    }
+
+    private var addNoteButton: some View {
+        Button {
+            router.presentedSheet = .addNote
+        } label: {
+            Image(systemName: "square.and.pencil")
+        }
+        .padding(10)
+        .font(.system(size: 20))
+        .bold()
+        .foregroundColor(.white)
+        .background(Color(.systemBlue))
+        .clipShape(Circle())
+        .padding(.trailing, 16)
+        .padding(.bottom, 16)
     }
 }
 
 extension NotesView {
-    
+
     @ViewBuilder
     func noteListView() -> some View {
         List {
@@ -127,16 +143,18 @@ extension NotesView {
             .onDelete { indexSet in
                 viewModel.deleteWhenSwipe(indexSet)
             }
-            
+
             Text("\(viewModel.notes.count.description) Notes")
                 .font(.footnote)
                 .foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)   // ← satırın arka planını temizle
         }
         .listStyle(.plain)
         .scrollIndicators(.hidden)
+        .scrollContentBackground(.hidden)          // ← List'in kendi arka planını gizle
+        .background(Color(.systemGray6))           // ← istediğin gerçek arka plan rengi
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
-    
 }

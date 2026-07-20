@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-enum ViewState<T: Equatable> {
+enum ViewState<T: Equatable>: Equatable {
     case idle
     case success(T)
     case error(String)
@@ -18,23 +18,28 @@ enum ViewState<T: Equatable> {
 final class NotesViewModel {
     private(set) var noteRepository: NoteRepository
     private let categoryRepository: CategoryRepository
-    
-    var notes: [Note] = []
+
     var categories: [Category] = []
     var chipDatas: [ChipData] = []
-    
+
     var selectedChip: ChipData? = nil
     var searchText: String = ""
-    
-    var error: String = ""
+
     var state: ViewState<[Note]> = .idle
+
+    // Tek doğruluk kaynağı: state. notes artık ondan türetiliyor.
+    var notes: [Note] {
+        if case .success(let notes) = state { return notes }
+        return []
+    }
+
     var showEmptyView: Bool {
         if case .success(let notes) = state {
             return notes.isEmpty
         }
         return false
     }
-    
+
     init(
         noteRepository: NoteRepository,
         categoryRepository: CategoryRepository
@@ -42,99 +47,99 @@ final class NotesViewModel {
         self.noteRepository = noteRepository
         self.categoryRepository = categoryRepository
     }
-    
+
     func load() {
         do {
-            notes = try noteRepository.fetchAll()
+            let fetchedNotes = try noteRepository.fetchAll()
             categories = try categoryRepository.fetchAll()
-        
-            state = .success(notes)
 
             var chips = [ChipData(name: "All")]
             chips.append(contentsOf: categories.map { ChipData(name: $0.name) })
-            
+
             if !categories.isEmpty {
                 chips.append(ChipData(name: "Uncategorized"))
             }
             self.chipDatas = chips
-            
+
             if let currentChip = selectedChip,
                let matched = chipDatas.first(where: { $0.name == currentChip.name }) {
                 selectedChip = matched
                 handleChipChange(matched.name)
             } else {
                 self.selectedChip = chipDatas.first
-                self.notes = try noteRepository.fetchAll()
+                state = .success(fetchedNotes)
             }
         } catch {
             state = .error(error.localizedDescription)
         }
     }
-    
+
     func handleChipChange(_ newValue: String) {
         do {
+            let filtered: [Note]
+
             if newValue == "All" {
-                notes = try noteRepository.fetchAll()
-                
+                filtered = try noteRepository.fetchAll()
             } else if newValue == "Uncategorized" {
                 let allNotes = try noteRepository.fetchAll()
-                notes = allNotes.filter { $0.category == nil }
-                
+                filtered = allNotes.filter { $0.category == nil }
             } else {
-                notes = noteRepository.filter(chip: newValue)
+                filtered = noteRepository.filter(chip: newValue)
             }
+
+            state = .success(filtered)
         } catch {
-            print("Handle Chip error \(error)")
+            state = .error(error.localizedDescription)
         }
     }
-    
+
     func resolvePendingChip(router: NotesRouter) {
         if let folderName = router.pendingSelectedChipName,
            let matchedChip = chipDatas.first(where: { $0.name == folderName }) {
-            
+
             selectedChip = matchedChip
             handleChipChange(folderName)
             router.pendingSelectedChipName = nil
         }
     }
-    
+
     func deleteWhenSwipe(_ indexSet: IndexSet) {
         guard let index = indexSet.first,
               let note = notes.get(index)
         else { return }
+
         do {
             try noteRepository.delete(note)
-            notes = try noteRepository.fetchAll()
+            let updated = try noteRepository.fetchAll()
+            state = .success(updated)
         } catch {
-            print("silemedik \(error)")
+            state = .error(error.localizedDescription)
         }
     }
-    
+
     func searchWhenWritten(_ newValue: String) {
         let searchText = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        
+
         guard !searchText.isEmpty else {
             load()
             return
         }
-        
+
         do {
-            notes = try noteRepository.search(matching: searchText)
+            let results = try noteRepository.search(matching: searchText)
+            state = .success(results)
         } catch {
-            print("Ararken kaybolduk!!! \(error)")
+            state = .error(error.localizedDescription)
         }
     }
 }
 
 extension Collection {
     subscript(safe index: Index) -> Element? {
-        guard indices.contains(index) else {
-            assertionFailure("Index \(index) out of bounds")
-            return nil
-        }
+        guard indices.contains(index) else { return nil }
         return self[index]
     }
-    
+
     func get(_ index: Index) -> Element? {
         self[safe: index]
     }
@@ -144,7 +149,7 @@ extension Date {
     var formattedDateString: String {
         let formatter = DateFormatter()
         let dayPassed = Calendar.current.dateComponents(Set([.day]), from: self, to: Date()).day ?? 0
-        
+
         if Calendar.current.isDateInToday(self) {
             formatter.dateFormat = "hh:mm a"
             return formatter.string(from: self)
@@ -159,4 +164,3 @@ extension Date {
         }
     }
 }
-
