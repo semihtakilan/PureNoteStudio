@@ -61,8 +61,12 @@ final class NoteDetailViewModel {
         }
     }
     
-    func moveToCategory() {
-        
+    func delete() {
+        do {
+            try noteRepository.delete(note)
+        } catch {
+            print("Note delete error \(error)")
+        }
     }
     
     func resizeAttachmentsIfNeeded(maxWidth: CGFloat) async {

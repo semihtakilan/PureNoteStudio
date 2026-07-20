@@ -68,7 +68,8 @@ struct NoteDetailView: View {
                     }
                     
                     Button("Delete") {
-                        
+                        viewModel.delete()
+                        router.pop()
                     }
                     
                 } label : {
