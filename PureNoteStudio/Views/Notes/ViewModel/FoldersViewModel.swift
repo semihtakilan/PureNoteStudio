@@ -9,19 +9,29 @@ import Foundation
 
 @Observable
 final class FoldersViewModel {
+    private let noteRepository: NoteRepository
     private let categoryRepository: CategoryRepository
+    
     var categories: [Category] = []
+    var totalNotesCount: Int = 0
+    var uncategorizedNotesCount: Int = 0
     
     var presentedAlert: Bool = false
     var categoryName: String = ""
     
-    init(categoryRepository: CategoryRepository) {
+    init(noteRepository: NoteRepository, categoryRepository: CategoryRepository) {
+        self.noteRepository = noteRepository
         self.categoryRepository = categoryRepository
     }
     
     func load() {
         do {
             categories = try categoryRepository.fetchAll()
+            
+            let allNotes = try noteRepository.fetchAll()
+            totalNotesCount = allNotes.count
+            uncategorizedNotesCount = allNotes.filter { $0.category == nil }.count
+            
         } catch {
             print("Category load error \(error)")
         }

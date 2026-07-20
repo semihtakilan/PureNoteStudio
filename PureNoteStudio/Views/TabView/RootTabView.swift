@@ -27,14 +27,20 @@ struct RootTabView: View {
                 )
                 .navigationDestination(for: NotesRoute.self) { route in
                     switch route {
+                        
                     case .detail(let note):
                         NoteDetailView(
                             note: note,
                             noteRepository: appDependencies.noteRepository,
                             categoryRepository: appDependencies.categoryRepository
                         )
+                        
                     case .folders:
-                        FoldersView(categoryRepository: appDependencies.categoryRepository)
+                        FoldersView(
+                            noteRepository: appDependencies.noteRepository,
+                            categoryRepository: appDependencies.categoryRepository
+                        )
+                        
                     case .moveToFolder(let note):
                         MoveToFolder(
                             note: note,

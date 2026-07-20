@@ -33,9 +33,16 @@ final class NotesViewModel {
             notes = try noteRepository.fetchAll()
             categories = try categoryRepository.fetchAll()
             
-            chipDatas = [ChipData(name: "All")] + categories.map { category in
-                ChipData(name: category.name)
+            
+            var chips = [ChipData(name: "All")]
+            
+            chips.append(contentsOf: categories.map { ChipData(name: $0.name) })
+            
+            if !categories.isEmpty {
+                chips.append(ChipData(name: "Uncategorized"))
             }
+            self.chipDatas = chips
+            
             
             if let currentChip = selectedChip,
                let matched = chipDatas.first(where: { $0.name == currentChip.name }) {
@@ -51,13 +58,19 @@ final class NotesViewModel {
     }
     
     func handleChipChange(_ newValue: String) {
-        if newValue == "All" {
-            do {
+        do {
+            if newValue == "All" {
                 notes = try noteRepository.fetchAll()
-            } catch {
+                
+            } else if newValue == "Uncategorized" {
+                let allNotes = try noteRepository.fetchAll()
+                notes = allNotes.filter { $0.category == nil }
+                
+            } else {
+                notes = noteRepository.filter(chip: newValue)
             }
-        } else {
-            notes = noteRepository.filter(chip: newValue)
+        } catch {
+            print("Handle Chip error \(error)")
         }
     }
     
