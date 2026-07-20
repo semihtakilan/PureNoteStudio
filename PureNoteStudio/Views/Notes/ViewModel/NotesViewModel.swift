@@ -8,6 +8,12 @@
 import SwiftUI
 import SwiftData
 
+enum ViewState<T: Equatable> {
+    case idle
+    case success(T)
+    case error(String)
+}
+
 @Observable
 final class NotesViewModel {
     private(set) var noteRepository: NoteRepository
@@ -19,6 +25,15 @@ final class NotesViewModel {
     
     var selectedChip: ChipData? = nil
     var searchText: String = ""
+    
+    var error: String = ""
+    var state: ViewState<[Note]> = .idle
+    var showEmptyView: Bool {
+        if case .success(let notes) = state {
+            return notes.isEmpty
+        }
+        return false
+    }
     
     init(
         noteRepository: NoteRepository,
@@ -32,17 +47,16 @@ final class NotesViewModel {
         do {
             notes = try noteRepository.fetchAll()
             categories = try categoryRepository.fetchAll()
-            
-            
+        
+            state = .success(notes)
+
             var chips = [ChipData(name: "All")]
-            
             chips.append(contentsOf: categories.map { ChipData(name: $0.name) })
             
             if !categories.isEmpty {
                 chips.append(ChipData(name: "Uncategorized"))
             }
             self.chipDatas = chips
-            
             
             if let currentChip = selectedChip,
                let matched = chipDatas.first(where: { $0.name == currentChip.name }) {
@@ -53,7 +67,7 @@ final class NotesViewModel {
                 self.notes = try noteRepository.fetchAll()
             }
         } catch {
-            print("Bir şeyler patladı!!! \(error)")
+            state = .error(error.localizedDescription)
         }
     }
     

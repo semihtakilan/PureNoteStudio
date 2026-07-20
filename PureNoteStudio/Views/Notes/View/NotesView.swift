@@ -30,7 +30,30 @@ struct NotesView: View {
     }
     
     var body: some View {
-        @Bindable var router = router
+        Group {
+            switch viewModel.state {
+            case .idle:
+                Color.red
+            case .success(let _):
+                if viewModel.showEmptyView {
+                    ContentUnavailableView("Henüz veri yok", image: "tray")
+                } else {
+                    successView
+                }
+            case .error:
+                ContentUnavailableView("Error", image: "Error!!!")
+            }
+        }
+        .onAppear{
+            viewModel.load()
+        }
+        .navigationTitle("Notes")
+        .task {
+            viewModel.load()
+        }
+    }
+    
+    var successView: some View {
         VStack(spacing: 16) {
             // MARK: - SearchBar
             SearchBarView(searchText: $viewModel.searchText)
@@ -88,23 +111,8 @@ struct NotesView: View {
             .frame(minWidth: 0, maxWidth: .infinity ,alignment: .trailing)
             .padding(.trailing, 16)
         }
-        .onAppear{
-            viewModel.load()
-        }
-        .navigationTitle("Notes")
-        .task {
-            viewModel.load()
-        }
+
         .background(Color(.systemGray6))
-        .sheet(item: $router.presentedSheet, content: { item in
-            switch item {
-            case .addNote:
-                AddNoteSheet(noteRepository: appDependencies.noteRepository)
-                    .onDisappear{
-                        viewModel.load()
-                    }
-            }
-        })
     }
 }
 
@@ -130,4 +138,5 @@ extension NotesView {
         .scrollIndicators(.hidden)
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
+    
 }
