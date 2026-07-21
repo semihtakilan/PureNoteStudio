@@ -31,6 +31,7 @@ struct NotesView: View {
 
     var body: some View {
         @Bindable var router = router
+        @Bindable var bindableViewModel = viewModel
 
         Group {
             switch viewModel.state {
@@ -69,6 +70,30 @@ struct NotesView: View {
         .navigationTitle("Notes")
         .task {
             viewModel.load()
+        }
+        .navigationDestination(for: NotesRoute.self) { route in
+            switch route {
+                
+            case .detail(let note):
+                NoteDetailView(
+                    note: note,
+                    noteRepository: appDependencies.noteRepository,
+                    categoryRepository: appDependencies.categoryRepository
+                )
+                
+            case .folders:
+                FoldersView(
+                    noteRepository: appDependencies.noteRepository,
+                    categoryRepository: appDependencies.categoryRepository,
+                    selectedItem: $bindableViewModel.selectedFilter
+                )
+                
+            case .moveToFolder(let note):
+                MoveToFolder(
+                    note: note,
+                    categoryRepository: appDependencies.categoryRepository
+                )
+            }
         }
     }
 

@@ -9,13 +9,22 @@ import SwiftUI
 
 struct FoldersView: View {
     @State private var viewModel: FoldersViewModel
+    @Binding var selectedItem: CategoryFilter?
     
     @Environment(NotesRouter.self)
     var router
     
-    init(noteRepository: NoteRepository, categoryRepository: CategoryRepository) {
+    init(
+        noteRepository: NoteRepository,
+        categoryRepository: CategoryRepository,
+        selectedItem: Binding<CategoryFilter?>
+    ) {
+        self._selectedItem = selectedItem
         self._viewModel = State(
-            initialValue: FoldersViewModel(noteRepository: noteRepository, categoryRepository: categoryRepository)
+            initialValue: FoldersViewModel(
+                noteRepository: noteRepository,
+                categoryRepository: categoryRepository
+            )
         )
     }
     
@@ -40,37 +49,41 @@ struct FoldersView: View {
                     )
                 }
             }
-            
-            // MARK: - AddFolderButton
-            Button {
-                viewModel.presentedAlert = true
-            } label: {
-                Image(systemName: "folder.badge.plus")
-            }
-            .padding(10)
-            .font(.system(size: 20))
-            .bold()
-            .foregroundColor(.white)
-            .background(Color(.systemBlue))
-            .clipShape(Circle())
-            .frame(minWidth: 0, maxWidth: .infinity ,alignment: .trailing)
-            .padding(.trailing, 16)
-            .alert("New Folder", isPresented: $viewModel.presentedAlert) {
-                TextField("Unnamed folder", text: $viewModel.categoryName)
-                
-                Button("Cancel", role: .cancel) {
-                    viewModel.alertCancel()
-                }
-                Button("OK") {
-                    viewModel.addCategory()
-                }
-            }
         }
         .navigationTitle("Folders")
         .task {
             viewModel.load()
         }
         .background(Color(.systemGray6))
+        .overlay(alignment: .bottomTrailing) {
+            addFolderButton
+        }
+    }
+    
+    private var addFolderButton: some View {
+        Button {
+            viewModel.presentedAlert = true
+        } label: {
+            Image(systemName: "folder.badge.plus")
+        }
+        .padding(10)
+        .font(.system(size: 20))
+        .bold()
+        .foregroundColor(.white)
+        .background(Color(.systemBlue))
+        .clipShape(Circle())
+        .padding(.trailing, 16)
+        .padding(.bottom, 16)
+        .alert("New Folder", isPresented: $viewModel.presentedAlert) {
+            TextField("Unnamed folder", text: $viewModel.categoryName)
+            
+            Button("Cancel", role: .cancel) {
+                viewModel.alertCancel()
+            }
+            Button("OK") {
+                viewModel.addCategory()
+            }
+        }
     }
 }
 
