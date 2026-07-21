@@ -7,30 +7,21 @@
 
 import SwiftUI
 
-struct ChipData: Identifiable, Equatable {
-    var id: UUID = UUID()
-    var name: String
-    
-    init(name: String) {
-        self.name = name
-    }
-}
-
 struct ChipView: View {
-    let chipDatas: [ChipData]
-    @Binding var selectedChip: ChipData?
+    let items: [CategoryFilter]
+    @Binding var selectedItem: CategoryFilter?
     
     var body: some View {
         ScrollView(.horizontal) {
             ScrollViewReader { proxy in
                 HStack {
-                    ForEach(chipDatas) { chip in
-                        let isSelected = chip.id == selectedChip?.id
+                    ForEach(items) { item in
+                        let isSelected = item.id == selectedItem?.id
                         Button {
-                            selectedChip = chip
+                            selectedItem = item
                         }
                         label: {
-                            Text(chip.name)
+                            Text(item.name)
                         }
                         .padding(8)
                         .padding(.horizontal, 8)
@@ -38,10 +29,10 @@ struct ChipView: View {
                         .foregroundStyle(isSelected ? .white : .primary)
                         .background(isSelected ? Color(.systemBlue) : Color(.systemGray5))
                         .clipShape(RoundedRectangle(cornerRadius: 24))
-                        .id(chip.name)
+                        .id(item.name)
                     }
                 }
-                .onChange(of: selectedChip?.name) { _, newValue in
+                .onChange(of: selectedItem?.name) { _, newValue in
                     if let newName = newValue {
                         Task { @MainActor in
                             try? await Task.sleep(for: .seconds(0.1))

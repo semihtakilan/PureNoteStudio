@@ -83,8 +83,8 @@ struct NotesView: View {
 
             // MARK: - Categories
             HStack {
-                ChipView(chipDatas: viewModel.chipDatas, selectedChip: $viewModel.selectedChip)
-                    .onChange(of: viewModel.selectedChip?.name ?? "All") { oldValue, newValue in
+                ChipView(items: viewModel.items, selectedItem: $viewModel.selectedFilter)
+                    .onChange(of: viewModel.selectedFilter ?? .all) { _, newValue in
                         viewModel.handleChipChange(newValue)
                     }
 
@@ -101,12 +101,6 @@ struct NotesView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .padding(.horizontal, 8)
-            .onAppear {
-                viewModel.resolvePendingChip(router: router)
-            }
-            .onChange(of: router.pendingSelectedChipName) { _, _ in
-                viewModel.resolvePendingChip(router: router)
-            }
 
             // MARK: - NoteList
             noteListView()
@@ -129,32 +123,5 @@ struct NotesView: View {
         .clipShape(Circle())
         .padding(.trailing, 16)
         .padding(.bottom, 16)
-    }
-}
-
-extension NotesView {
-
-    @ViewBuilder
-    func noteListView() -> some View {
-        List {
-            ForEach(viewModel.notes) { note in
-                NoteRow(note: note)
-            }
-            .onDelete { indexSet in
-                viewModel.deleteWhenSwipe(indexSet)
-            }
-
-            Text("\(viewModel.notes.count.description) Notes")
-                .font(.footnote)
-                .foregroundColor(.secondary)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)   // ← satırın arka planını temizle
-        }
-        .listStyle(.plain)
-        .scrollIndicators(.hidden)
-        .scrollContentBackground(.hidden)          // ← List'in kendi arka planını gizle
-        .background(Color(.systemGray6))           // ← istediğin gerçek arka plan rengi
-        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }

@@ -28,8 +28,6 @@ enum NotesSheet: Identifiable {
 final class NotesRouter {
     var path = NavigationPath()
     var presentedSheet: NotesSheet?
-    var pendingSelectedChipName: String? = nil
-    var selectedChip: ChipData? = nil
     
     func push(_ route: NotesRoute) {
         path.append(route)

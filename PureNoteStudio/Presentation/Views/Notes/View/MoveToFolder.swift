@@ -28,20 +28,22 @@ struct MoveToFolder: View {
     var body: some View {
         VStack {
             List {
-                ForEach(viewModel.categories) { category in
+                ForEach(viewModel.items) { item in
                     Button {
-                        viewModel.moveNote(to: category)
+                        viewModel.moveNote(to: item)
                         router.pop()
                     } label: {
                         HStack {
-                            Image(systemName: "folder.fill")
+                            Image(systemName: item == .uncategorized ? "tray" : "folder.fill")
                             
-                            Text(category.name)
+                            Text(item.name)
                                 .font(.headline)
                             
                             Spacer()
                             
-                            Text(category.notes.count.description)
+                            if case .folder(let category) = item {
+                                Text(category.notes.count.description)
+                            }
                         }
                     }
                     .foregroundColor(.primary)

@@ -11,7 +11,7 @@ struct FoldersView: View {
     @State private var viewModel: FoldersViewModel
     
     @Environment(NotesRouter.self)
-    private var router
+    var router
     
     init(noteRepository: NoteRepository, categoryRepository: CategoryRepository) {
         self._viewModel = State(
@@ -24,18 +24,18 @@ struct FoldersView: View {
             
             // MARK: - FoldersRow
             List {
-                FolderRow(category: Category(name: "All"), customCount: viewModel.totalNotesCount)
+                FolderRow(item: .all, customCount: viewModel.totalNotesCount)
                 
-                ForEach(viewModel.categories) { category in
-                    FolderRow(category: category)
+                ForEach(viewModel.items) { item in
+                    FolderRow(item: item)
                 }
                 .onDelete { IndexSet in
                     viewModel.deleteWhenSwipe(IndexSet)
                 }
                 
-                if !viewModel.categories.isEmpty {
+                if !viewModel.items.isEmpty {
                     FolderRow(
-                        category: Category(name: "Uncategorized"),
+                        item: .uncategorized,
                         customCount: viewModel.uncategorizedNotesCount
                     )
                 }
@@ -74,24 +74,4 @@ struct FoldersView: View {
     }
 }
 
-extension FoldersView {
-    func FolderRow(category: Category, customCount: Int? = nil) -> some View {
-        Button {
-            router.pendingSelectedChipName = category.name
-            router.pop()
-        } label: {
-            HStack {
-                Image(systemName: "folder.fill")
-                
-                Text(category.name)
-                    .font(.headline)
-                
-                Spacer()
-                
-                Text((customCount ?? category.notes.count).description)
-            }
-        }
-        .foregroundColor(.primary)
-        
-    }
-}
+

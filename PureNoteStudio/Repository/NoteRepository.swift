@@ -14,7 +14,7 @@ protocol NoteRepository {
     func add(_ note: Note) throws
     func update(_ note: Note) throws
     func delete(_ note: Note) throws
-    func filter(chip: String) -> [Note]
+    func filter(_ filter: String) -> [Note]
     func save() throws
 }
 
@@ -57,9 +57,9 @@ final class NoteRepositoryLive: NoteRepository {
         try save()
     }
     
-    func filter(chip: String) -> [Note] {
+    func filter(_ filter: String) -> [Note] {
         let descriptor = FetchDescriptor<Note>(
-            predicate: #Predicate { $0.category?.name == chip }
+            predicate: #Predicate { $0.category?.name == filter }
         )
         do {
             return try modelContext.fetch(descriptor)
