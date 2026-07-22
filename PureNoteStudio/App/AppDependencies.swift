@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+@MainActor
 @Observable
 final class AppDependencies {
     let modelContainer: ModelContainer
@@ -15,6 +16,9 @@ final class AppDependencies {
     
     let noteRepository: NoteRepository
     let categoryRepository: CategoryRepository
+    
+    let richTextService: RichTextServiceProtocol
+    let notificationManager: NotificationManager
     
     init() {
         let schema = Schema([Note.self, Category.self])
@@ -27,5 +31,7 @@ final class AppDependencies {
         self.modelContext = ModelContext(modelContainer)
         self.noteRepository = NoteRepositoryLive(modelContext: modelContext)
         self.categoryRepository = CategoryRepositoryLive(modelContext: modelContext)
+        self.richTextService = RichTextService()
+        self.notificationManager = NotificationManagerLive()
     }
 }

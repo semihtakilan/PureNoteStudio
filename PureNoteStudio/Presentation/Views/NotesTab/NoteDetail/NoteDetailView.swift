@@ -17,13 +17,17 @@ struct NoteDetailView: View {
     init(
         note: Note,
         noteRepository: NoteRepository,
-        categoryRepository: CategoryRepository
+        categoryRepository: CategoryRepository,
+        notificationManager: NotificationManager,
+        richTextService: RichTextServiceProtocol
     ) {
         self._viewModel = State(
             initialValue: NoteDetailViewModel(
                 note: note,
                 noteRepository: noteRepository,
-                categoryRepository: categoryRepository
+                categoryRepository: categoryRepository,
+                notificationManager: notificationManager,
+                richTextService: richTextService
             )
         )
     }
@@ -89,6 +93,20 @@ struct NoteDetailView: View {
                 } label : {
                     Label("Options", systemImage: "ellipsis")
                 }
+            }
+            
+            ToolbarItemGroup(placement: .bottomBar) {
+                AttachmentMenu(
+                    onImageLoaded: { image in
+                        Task {
+                            await viewModel.resizeAttachmentsIfNeeded(maxWidth: editorWidth)
+                        }
+                    },
+                    onCameraTapped: {
+                        print("Kamera özelliği yakında eklenecek!")
+                    }
+                )
+                Spacer() 
             }
         }
         .task(id: editorWidth) {

@@ -61,20 +61,19 @@ struct RichTextEditor: UIViewRepresentable {
         
         if resetStyleTrigger {
             let resetFont = UIFont.preferredFont(forTextStyle: .body)
-            uiView.typingAttributes = [.font: resetFont]
+            
+            let newAttributes: [NSAttributedString.Key: Any] = [
+                .font: resetFont,
+                .foregroundColor: UIColor.label
+            ]
+            
+            uiView.typingAttributes = newAttributes
             uiView.selectedRange = NSRange(location: uiView.attributedText.length, length: 0)
             
             let triggerBinding = $resetStyleTrigger
             Task { @MainActor in
                 triggerBinding.wrappedValue = false
             }
-        }
-        
-        if resetStyleTrigger {
-            let resetFont = UIFont.preferredFont(forTextStyle: .body)
-            let newAttributes: [NSAttributedString.Key: Any] = [.font: resetFont]
-            
-            uiView.typingAttributes = newAttributes
         }
     }
     

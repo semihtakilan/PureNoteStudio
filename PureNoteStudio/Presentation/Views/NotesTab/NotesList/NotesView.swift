@@ -55,10 +55,15 @@ struct NotesView: View {
                 )
             }
         }
-        .sheet(item: $router.presentedSheet, content: { item in
-            switch item {
-            case .addNote:
-                AddNoteSheet(noteRepository: appDependencies.noteRepository)
+        .sheet(
+            item: $router.presentedSheet,
+            content: { item in
+                switch item {
+                case .addNote:
+                    AddNoteSheet(
+                        noteRepository: appDependencies.noteRepository,
+                        richTextService: appDependencies.richTextService
+                    )
                     .onDisappear {
                         viewModel.load()
                     }
@@ -78,7 +83,9 @@ struct NotesView: View {
                 NoteDetailView(
                     note: note,
                     noteRepository: appDependencies.noteRepository,
-                    categoryRepository: appDependencies.categoryRepository
+                    categoryRepository: appDependencies.categoryRepository,
+                    notificationManager: appDependencies.notificationManager,
+                    richTextService: appDependencies.richTextService
                 )
                 
             case .folders:

@@ -1,20 +1,33 @@
+//
+//  AddNoteSheetViewModel.swift
+//  PureNoteStudio
+//
+//  Created by Semih TAKILAN on 6.07.2026.
+//
+
 import Foundation
 import SwiftUI
 import PhotosUI
 
+@MainActor
 @Observable
 final class AddNoteSheetViewModel {
     private let noteRepository: NoteRepository
-    
-    init(noteRepository: NoteRepository) {
-        self.noteRepository = noteRepository
-    }
+    private let richTextService: RichTextServiceProtocol
     
     var title: String = ""
     var attributedText = NSAttributedString(string: "")
     var selectedPhoto: PhotosPickerItem?
     var shouldResetEditorStyle: Bool = false
     var selectedRange: NSRange = NSRange(location: 0, length: 0)
+    
+    init(
+        noteRepository: NoteRepository,
+        richTextService: RichTextServiceProtocol
+    ) {
+        self.noteRepository = noteRepository
+        self.richTextService = richTextService
+    }
     
     func saveNote() throws {
         let contentText = attributedText.string
@@ -31,30 +44,17 @@ final class AddNoteSheetViewModel {
             return
         }
 
-        let resized = await image.resized(toMaxWidth: editorWidth)
-
-        let attachment = NSTextAttachment()
-        attachment.image = resized
-        attachment.bounds = CGRect(x: 0, y: 0, width: editorWidth, height: resized.size.height)
+        let result = await richTextService.insertImage(
+            image,
+            into: attributedText,
+            at: selectedRange,
+            maxWidth: editorWidth
+        )
         
-        let currentFont = UIFont.preferredFont(forTextStyle: .body)
-        let baseAttributes: [NSAttributedString.Key: Any] = [.font: currentFont]
-
-        let insertion = NSMutableAttributedString()
-        insertion.append(NSAttributedString(string: "\n", attributes: baseAttributes))
-        insertion.append(NSAttributedString(attachment: attachment))
-        insertion.append(NSAttributedString(string: "\n", attributes: baseAttributes))
-
-        let mutableAttr = NSMutableAttributedString(attributedString: attributedText)
-
-        let safeLocation = min(max(selectedRange.location, 0), mutableAttr.length)
-        mutableAttr.insert(insertion, at: safeLocation)
-
-        attributedText = mutableAttr
+        attributedText = result.0
+        selectedRange = result.1
+        
         selectedPhoto = nil
         shouldResetEditorStyle = true
-
-        selectedRange = NSRange(location: safeLocation + insertion.length, length: 0)
     }
 }
-

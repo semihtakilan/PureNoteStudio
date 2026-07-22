@@ -5,16 +5,17 @@
 //  Created by Semih TAKILAN on 9.07.2026.
 //
 
-
 import Foundation
 import SwiftUI
 import UIKit
 
+@MainActor
 @Observable
 final class NoteDetailViewModel {
     private let noteRepository: NoteRepository
     private let categoryRepository: CategoryRepository
     private let notificationManager: NotificationManager
+    private let richTextService: RichTextServiceProtocol
     private(set) var note: Note
     
     var attributedText: NSAttributedString = NSAttributedString()
@@ -33,14 +34,16 @@ final class NoteDetailViewModel {
         note: Note,
         noteRepository: NoteRepository,
         categoryRepository: CategoryRepository,
-        notificationManager: NotificationManager = NotificationManagerLive()
+        notificationManager: NotificationManager,
+        richTextService: RichTextServiceProtocol
     ) {
         self.note = note
         self.noteRepository = noteRepository
         self.categoryRepository = categoryRepository
         self.notificationManager = notificationManager
-        setAttributedText()
+        self.richTextService = richTextService
         
+        setAttributedText()
         if let existingDate = note.reminderDate {
             self.selectedReminderDate = existingDate
         }
@@ -48,7 +51,6 @@ final class NoteDetailViewModel {
     
     func saveReminder() {
         Task {
-            
             let granted = await notificationManager.requestAuthorization()
             guard granted else {
                 print("Kullanıcı bildirim iznini reddetti.")
@@ -115,45 +117,7 @@ final class NoteDetailViewModel {
     
     func resizeAttachmentsIfNeeded(maxWidth: CGFloat) async {
         isProcessing = true
-        attributedText = await resizeAttachments(in: attributedText, maxWidth: maxWidth)
+        attributedText = await richTextService.resizeAttachments(in: attributedText, maxWidth: maxWidth)
         isProcessing = false
     }
-    
-    private func resizeAttachments(in attributedString: NSAttributedString, maxWidth: CGFloat) async -> NSAttributedString {
-        let mutableAttr = NSMutableAttributedString(attributedString: attributedString)
-        let fullRange = NSRange(location: 0, length: mutableAttr.length)
-        
-        var attachmentsToReplace: [(NSRange, UIImage)] = []
-        
-        mutableAttr.enumerateAttribute(.attachment, in: fullRange, options: []) { value, range, _ in
-            guard let attachment = value as? NSTextAttachment else { return }
-            
-            if let image = attachment.image ?? (attachment.fileWrapper?.regularFileContents.flatMap { UIImage(data: $0) }) {
-                attachmentsToReplace.append((range, image))
-            }
-        }
-        
-        for (range, image) in attachmentsToReplace.reversed() {
-            let adjustedWidth = maxWidth - 10
-            
-            let resizedImage = await image.resized(toMaxWidth: adjustedWidth)
-            
-            let newAttachment = NSTextAttachment()
-            newAttachment.image = resizedImage
-            newAttachment.bounds = CGRect(x: 0, y: 0, width: resizedImage.size.width, height: resizedImage.size.height)
-            
-            let paragraphStyle = NSMutableParagraphStyle()
-            paragraphStyle.alignment = .center
-            
-            let attachmentString = NSMutableAttributedString(attachment: newAttachment)
-            let fullAttachmentRange = NSRange(location: 0, length: attachmentString.length)
-            attachmentString.addAttribute(.paragraphStyle, value: paragraphStyle, range: fullAttachmentRange)
-            
-            mutableAttr.replaceCharacters(in: range, with: attachmentString)
-        }
-        
-        return mutableAttr
-    }
 }
-
-

@@ -15,8 +15,16 @@ struct AddNoteSheet: View {
     @Environment(NotesRouter.self)
     private var router
     
-    init(noteRepository: NoteRepository) {
-        self._viewModel = State(initialValue: AddNoteSheetViewModel(noteRepository: noteRepository))
+    init(
+        noteRepository: NoteRepository,
+        richTextService: RichTextServiceProtocol
+    ) {
+        self._viewModel = State(
+            initialValue: AddNoteSheetViewModel(
+                noteRepository: noteRepository,
+                richTextService: richTextService
+            )
+        )
     }
     
     @State private var selectedPhoto: PhotosPickerItem?
@@ -78,9 +86,18 @@ struct AddNoteSheet: View {
 
             // MARK: - BottomToolbar
             HStack {
-                PhotosPicker(selection: $viewModel.selectedPhoto, matching: .images) {
-                    Image(systemName: "photo")
-                }
+                AttachmentMenu(
+                    onImageLoaded: { image in
+                        Task {
+                            await viewModel.insertImage(image, editorWidth: editorWidth)
+                        }
+                    },
+                    onCameraTapped: {
+                        print("Kamera özelliği yakında eklenecek!")
+                    }
+                )
+                
+                Spacer()
             }
         }
         .padding()
