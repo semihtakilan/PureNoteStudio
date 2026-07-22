@@ -17,6 +17,9 @@ final class Note {
     var lastEdit: Date = Date()
     var category: Category?
     
+    var reminderDate: Date?
+    var notificationID: String?
+    
     init(title: String, contentText: String, contentData: Data? = nil, category: Category? = nil) {
         self.title = title
         self.contentText = contentText

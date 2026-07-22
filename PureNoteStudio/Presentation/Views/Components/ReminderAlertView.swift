@@ -5,7 +5,6 @@
 //  Created by Semih TAKILAN on 22.07.2026.
 //
 
-
 import SwiftUI
 
 struct ReminderAlertView: View {

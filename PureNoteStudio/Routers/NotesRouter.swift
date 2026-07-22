@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum NotesRoute: Hashable {
+enum NotesRoute: Hashable, Equatable {
     case detail(Note)
     case folders
     case moveToFolder(Note)

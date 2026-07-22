@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum CategoryFilter: Identifiable, Hashable {
+enum CategoryFilter: Identifiable, Hashable, Equatable {
     case all
     case uncategorized
     case folder(Category)

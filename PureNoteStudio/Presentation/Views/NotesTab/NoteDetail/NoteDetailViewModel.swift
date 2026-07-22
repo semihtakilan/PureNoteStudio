@@ -14,6 +14,7 @@ import UIKit
 final class NoteDetailViewModel {
     private let noteRepository: NoteRepository
     private let categoryRepository: CategoryRepository
+    private let notificationManager: NotificationManager
     private(set) var note: Note
     
     var attributedText: NSAttributedString = NSAttributedString()
@@ -28,15 +29,51 @@ final class NoteDetailViewModel {
     var isReminderAlertPresented: Bool = false
     var selectedReminderDate: Date = Date()
     
-    init(note: Note, noteRepository: NoteRepository, categoryRepository: CategoryRepository) {
+    init(
+        note: Note,
+        noteRepository: NoteRepository,
+        categoryRepository: CategoryRepository,
+        notificationManager: NotificationManager = NotificationManagerLive()
+    ) {
         self.note = note
         self.noteRepository = noteRepository
         self.categoryRepository = categoryRepository
+        self.notificationManager = notificationManager
         setAttributedText()
+        
+        if let existingDate = note.reminderDate {
+            self.selectedReminderDate = existingDate
+        }
     }
     
     func saveReminder() {
-        print("Hatırlatıcı şu tarihe kuruldu: \(selectedReminderDate)")
+        Task {
+            
+            let granted = await notificationManager.requestAuthorization()
+            guard granted else {
+                print("Kullanıcı bildirim iznini reddetti.")
+                return
+            }
+            
+            if let oldID = note.notificationID {
+                notificationManager.removeNotification(with: oldID)
+            }
+            
+            if let newID = notificationManager.scheduleNotification(
+                title: note.title,
+                body: note.contentText.trimmingCharacters(in: .whitespaces),
+                date: selectedReminderDate
+            ) {
+                note.reminderDate = selectedReminderDate
+                note.notificationID = newID
+                
+                do {
+                    try noteRepository.update(note)
+                } catch {
+                    print("Not kaydedilemedi: \(error)")
+                }
+            }
+        }
     }
     
     private func setAttributedText() {
