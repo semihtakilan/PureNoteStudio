@@ -13,7 +13,7 @@ struct NoteDetailView: View {
     
     @Environment(NotesRouter.self)
     private var router
-
+    
     init(
         note: Note,
         noteRepository: NoteRepository,
@@ -27,7 +27,7 @@ struct NoteDetailView: View {
             )
         )
     }
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(viewModel.title)
@@ -47,6 +47,18 @@ struct NoteDetailView: View {
             }
         }
         .padding()
+        .overlay {
+            if viewModel.isReminderAlertPresented {
+                ReminderAlertView(
+                    isPresented: $viewModel.isReminderAlertPresented,
+                    selectedDate: $viewModel.selectedReminderDate,
+                    onSave: {
+                        viewModel.saveReminder()
+                    }
+                )
+                .ignoresSafeArea()
+            }
+        }
         .navigationTitle("")
         .background(
             GeometryReader { geo in
@@ -60,7 +72,9 @@ struct NoteDetailView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Button("Reminder") {
-                        
+                        withAnimation {
+                            viewModel.isReminderAlertPresented = true
+                        }
                     }
                     
                     Button("Move to") {

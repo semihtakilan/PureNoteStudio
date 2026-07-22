@@ -108,8 +108,8 @@ struct NotesView: View {
 
             // MARK: - Categories
             HStack {
-                ChipView(items: viewModel.items, selectedItem: $viewModel.selectedFilter)
-                    .onChange(of: viewModel.selectedFilter ?? .all) { _, newValue in
+                ChipView(chipDatas: viewModel.chipDatas, selectedChip: $viewModel.selectedChip)
+                    .onChange(of: viewModel.selectedChip) { _, newValue in
                         viewModel.handleChipChange(newValue)
                     }
 

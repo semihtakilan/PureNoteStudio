@@ -25,11 +25,18 @@ final class NoteDetailViewModel {
     
     var title: String { note.title }
     
+    var isReminderAlertPresented: Bool = false
+    var selectedReminderDate: Date = Date()
+    
     init(note: Note, noteRepository: NoteRepository, categoryRepository: CategoryRepository) {
         self.note = note
         self.noteRepository = noteRepository
         self.categoryRepository = categoryRepository
         setAttributedText()
+    }
+    
+    func saveReminder() {
+        print("Hatırlatıcı şu tarihe kuruldu: \(selectedReminderDate)")
     }
     
     private func setAttributedText() {

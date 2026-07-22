@@ -19,8 +19,12 @@ final class NotesViewModel {
     private(set) var noteRepository: NoteRepository
     private let categoryRepository: CategoryRepository
 
-    var items: [CategoryFilter] = []
+    var chipDatas: [ChipData] = []
+    var categoryFilters: [CategoryFilter] = []
+    
+    var selectedChip: ChipData? = nil
     var selectedFilter: CategoryFilter? = nil
+    
     var searchText: String = ""
 
     var state: ViewState<[Note]> = .idle
@@ -32,7 +36,7 @@ final class NotesViewModel {
 
     var showEmptyView: Bool {
         if case .success(let notes) = state {
-            return notes.isEmpty && items.count <= 1 // Geçici
+            return notes.isEmpty && categoryFilters.count <= 1 // Geçici
         }
         return false
     }
@@ -55,14 +59,21 @@ final class NotesViewModel {
                 filters.append(.uncategorized)
             }
             
-            self.items = filters
+            self.categoryFilters = filters
+            self.chipDatas = categoryFilters.map({ category in
+                return ChipData(
+                    name: category.name
+                )
+            })
 
+            
             if selectedFilter == nil {
                 selectedFilter = .all
-            } else if let current = selectedFilter, let matched = items.first(where: { $0.id == current.id }) {
+            } else if let current = selectedFilter, let matched = categoryFilters.first(where: { $0.id == current.id }) {
                 selectedFilter = matched
             }
             
+            selectedChip = ChipData(name: selectedFilter?.name ?? "")
             applyFilter()
             
         } catch {
@@ -70,8 +81,10 @@ final class NotesViewModel {
         }
     }
 
-    func handleChipChange(_ filter: CategoryFilter) {
-        selectedFilter = filter
+    func handleChipChange(_ chip: ChipData?) {
+        guard let chip else { return }
+        selectedChip = chip
+        selectedFilter = categoryFilters.first(where: { ($0.name == chip.name) })
         applyFilter()
     }
     
@@ -82,39 +95,26 @@ final class NotesViewModel {
     
     func applyFilter() {
         do {
-            let filter = selectedFilter ?? .all
             let text = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            let baseNotes: [Note] = try text.isEmpty
+            ? noteRepository.fetchAll()
+            : noteRepository.search(matching: text)
             
-            var resultNotes: [Note] = []
-            
-            if !text.isEmpty {
-                let searchResults = try noteRepository.search(matching: text)
-                
-                switch filter {
-                case .all:
-                    resultNotes = searchResults
-                case .uncategorized:
-                    resultNotes = searchResults.filter{ $0.category == nil }
-                case .folder(let category):
-                    resultNotes = searchResults.filter{ $0.category == category }
-                }
-            } else {
-                switch filter {
-                case .all:
-                    resultNotes = try noteRepository.fetchAll()
-                case .uncategorized:
-                    let allNotes = try noteRepository.fetchAll()
-                    resultNotes = allNotes.filter{ $0.category == nil }
-                case .folder(let category):
-                    let allNotes = try noteRepository.fetchAll()
-                    resultNotes = allNotes.filter{ $0.category == category }
-                }
-            }
-            
-            state = .success(resultNotes)
+            state = .success(filtered(baseNotes, by: selectedFilter ?? .all))
             
         } catch {
             state = .error(error.localizedDescription)
+        }
+    }
+    
+    private func filtered(_ notes: [Note], by filter: CategoryFilter) -> [Note] {
+        switch filter {
+        case .all:
+            return notes
+        case .uncategorized:
+            return notes.filter { $0.category == nil }
+        case .folder(let category):
+            return notes.filter { $0.category == category }
         }
     }
 
