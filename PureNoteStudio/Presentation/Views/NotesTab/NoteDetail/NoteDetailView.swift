@@ -99,7 +99,7 @@ struct NoteDetailView: View {
                 AttachmentMenu(
                     onImageLoaded: { image in
                         Task {
-                            await viewModel.resizeAttachmentsIfNeeded(maxWidth: editorWidth)
+                            await viewModel.insertImage(image, editorWidth: editorWidth)
                         }
                     },
                     onCameraTapped: {

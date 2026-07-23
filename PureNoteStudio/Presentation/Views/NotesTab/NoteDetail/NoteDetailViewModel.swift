@@ -120,4 +120,20 @@ final class NoteDetailViewModel {
         attributedText = await richTextService.resizeAttachments(in: attributedText, maxWidth: maxWidth)
         isProcessing = false
     }
+    
+    func insertImage(_ image: UIImage, editorWidth: CGFloat) async {
+        guard editorWidth > 0, image.size.width > 0, image.size.height > 0 else { return }
+        
+        let result = await richTextService.insertImage(
+            image,
+            into: attributedText,
+            at: selectedRange,
+            maxWidth: editorWidth
+        )
+        
+        attributedText = result.0
+        selectedRange = result.1
+        
+        resetStyleTrigger = true
+    }
 }

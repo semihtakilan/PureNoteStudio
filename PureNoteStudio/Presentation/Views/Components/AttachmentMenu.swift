@@ -10,13 +10,16 @@ import PhotosUI
 
 struct AttachmentMenu: View {
     @State private var selectedItem: PhotosPickerItem?
+    @State private var isPickerPresented: Bool = false
     
     var onImageLoaded: (UIImage) -> Void
     var onCameraTapped: () -> Void
     
     var body: some View {
         Menu {
-            PhotosPicker(selection: $selectedItem, matching: .images) {
+            Button {
+                isPickerPresented = true
+            } label: {
                 Label("Fotoğraf Galerisi", systemImage: "photo.on.rectangle")
             }
             
@@ -31,6 +34,11 @@ struct AttachmentMenu: View {
                 .font(.system(size: 20))
                 .foregroundColor(.primary)
         }
+        .photosPicker(
+            isPresented: $isPickerPresented,
+            selection: $selectedItem,
+            matching: .images
+        )
         .onChange(of: selectedItem) { _, newItem in
             Task {
                 if let data = try? await newItem?.loadTransferable(type: Data.self),

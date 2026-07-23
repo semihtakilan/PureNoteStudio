@@ -35,15 +35,10 @@ final class AddNoteSheetViewModel {
         let note = Note(title: title, contentText: contentText, contentData: contentData)
         try noteRepository.add(note)
     }
-
+    
     func insertImage(_ image: UIImage, editorWidth: CGFloat) async {
-        guard editorWidth > 0,
-              image.size.width > 0,
-              image.size.height > 0 else {
-            print("Geçersiz boyut — editorWidth: \(editorWidth), image: \(image.size)")
-            return
-        }
-
+        guard editorWidth > 0, image.size.width > 0, image.size.height > 0 else { return }
+        
         let result = await richTextService.insertImage(
             image,
             into: attributedText,
@@ -54,7 +49,6 @@ final class AddNoteSheetViewModel {
         attributedText = result.0
         selectedRange = result.1
         
-        selectedPhoto = nil
         shouldResetEditorStyle = true
     }
 }
