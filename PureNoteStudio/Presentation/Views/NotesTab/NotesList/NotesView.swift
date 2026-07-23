@@ -9,29 +9,12 @@ import SwiftUI
 import SwiftData
 
 struct NotesView: View {
-    @State var viewModel: NotesViewModel
-
-    @Environment(AppDependencies.self)
-    private var appDependencies
-
+    @Bindable var viewModel: NotesViewModel
+    
     @Environment(NotesRouter.self)
-    private var router
-
-    init(
-        noteRepository: NoteRepository,
-        categoryRepository: CategoryRepository
-    ) {
-        self._viewModel = State(
-            initialValue: NotesViewModel(
-                noteRepository: noteRepository,
-                categoryRepository: categoryRepository
-            )
-        )
-    }
+    var router
 
     var body: some View {
-        @Bindable var router = router
-        @Bindable var bindableViewModel = viewModel
 
         Group {
             switch viewModel.state {
@@ -55,20 +38,6 @@ struct NotesView: View {
                 )
             }
         }
-        .sheet(
-            item: $router.presentedSheet,
-            content: { item in
-                switch item {
-                case .addNote:
-                    AddNoteSheet(
-                        noteRepository: appDependencies.noteRepository,
-                        richTextService: appDependencies.richTextService
-                    )
-                    .onDisappear {
-                        viewModel.load()
-                    }
-            }
-        })
         .overlay(alignment: .bottomTrailing) {
             OverlayButton(imageName: "square.and.pencil") {
                 router.presentedSheet = .addNote
@@ -77,33 +46,6 @@ struct NotesView: View {
         .navigationTitle("Notes")
         .task {
             viewModel.load()
-        }
-        // Bunu yapabiliyosan katman dışına taşı
-        .navigationDestination(for: NotesRoute.self) { route in
-            switch route {
-                
-            case .detail(let note):
-                NoteDetailView(
-                    note: note,
-                    noteRepository: appDependencies.noteRepository,
-                    categoryRepository: appDependencies.categoryRepository,
-                    notificationManager: appDependencies.notificationManager,
-                    richTextService: appDependencies.richTextService
-                )
-                
-            case .folders:
-                FoldersView(
-                    noteRepository: appDependencies.noteRepository,
-                    categoryRepository: appDependencies.categoryRepository,
-                    selectedItem: $bindableViewModel.selectedFilter
-                )
-                
-            case .moveToFolder(let note):
-                MoveToFolder(
-                    note: note,
-                    categoryRepository: appDependencies.categoryRepository
-                )
-            }
         }
     }
 
@@ -143,20 +85,4 @@ struct NotesView: View {
         }
         .background(Color(.systemGray6))
     }
-
-//    private var addNoteButton: some View {
-//        Button {
-//            router.presentedSheet = .addNote
-//        } label: {
-//            Image(systemName: "square.and.pencil")
-//        }
-//        .padding(10)
-//        .font(.system(size: 20))
-//        .bold()
-//        .foregroundColor(.white)
-//        .background(Color(.systemBlue))
-//        .clipShape(Circle())
-//        .padding(.trailing, 16)
-//        .padding(.bottom, 16)
-//    }
 }

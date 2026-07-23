@@ -43,7 +43,6 @@ struct AddNoteSheet: View {
                 .disabled(viewModel.title.isEmpty)
             }
             .padding(.top, 16)
-            .padding(.horizontal)
             
             Divider().ignoresSafeArea()
             
@@ -56,13 +55,11 @@ struct AddNoteSheet: View {
             .font(.subheadline)
             .opacity(0.5)
             .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.horizontal)
             
             // MARK: -Title
             TextField("New Title", text: $viewModel.title)
                 .font(.largeTitle)
                 .bold()
-                .padding(.horizontal)
             
             // MARK: - Content
             RichTextEditor(
@@ -72,7 +69,6 @@ struct AddNoteSheet: View {
                 selectedRange: $viewModel.selectedRange,
                 isFocused: $viewModel.isFocused
             )
-            .padding(.horizontal) // Padding eklendi
             .onChange(of: viewModel.shouldResetEditorStyle) { _, shouldReset in
                 if shouldReset {
                     viewModel.shouldResetEditorStyle = false
@@ -102,10 +98,10 @@ struct AddNoteSheet: View {
                             .foregroundColor(.primary)
                     }
                 }
-                .padding(.horizontal)
                 .padding(.vertical, 10)
                 .background(Color(UIColor.systemGray6))
             }
         }
+        .padding(.horizontal)
     }
 }

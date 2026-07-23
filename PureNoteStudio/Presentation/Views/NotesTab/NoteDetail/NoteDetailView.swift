@@ -52,7 +52,6 @@ struct NoteDetailView: View {
                     selectedRange: $viewModel.selectedRange,
                     isFocused: $viewModel.isFocused
                 )
-                .padding(.horizontal)
             }
             
             if viewModel.isFocused {
@@ -77,11 +76,11 @@ struct NoteDetailView: View {
                             .foregroundColor(.primary)
                     }
                 }
-                .padding(.horizontal)
                 .padding(.vertical, 10)
                 .background(Color(UIColor.systemGray6))
             }
         }
+        .padding(.horizontal)
         .overlay {
             if viewModel.isReminderAlertPresented {
                 ReminderAlertView(

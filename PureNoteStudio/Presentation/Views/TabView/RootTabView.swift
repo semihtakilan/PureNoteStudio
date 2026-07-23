@@ -21,10 +21,7 @@ struct RootTabView: View {
             set: { router.selectedTab = $0 }
         )) {
             NavigationStack(path: Bindable(router.notesRouter).path) {
-                NotesView(
-                    noteRepository: appDependencies.noteRepository,
-                    categoryRepository: appDependencies.categoryRepository
-                )
+                NotesTabCoordinator(appDependencies: appDependencies)
             }
             .environment(router.notesRouter)
             .tabItem {
