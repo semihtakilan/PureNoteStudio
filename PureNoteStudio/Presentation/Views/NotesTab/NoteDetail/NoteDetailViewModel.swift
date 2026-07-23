@@ -22,6 +22,7 @@ final class NoteDetailViewModel {
     var isProcessing: Bool = true
     var resetStyleTrigger: Bool = false
     var selectedRange: NSRange = NSRange(location: 0, length: 0)
+    var isFocused: Bool = false
     
     private var originalContentText: String = ""
     

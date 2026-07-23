@@ -8,12 +8,6 @@
 import Foundation
 import UserNotifications
 
-protocol NotificationManager {
-    func requestAuthorization() async -> Bool
-    func scheduleNotification(title: String, body: String, date: Date) -> String?
-    func removeNotification(with id: String)
-}
-
 final class NotificationManagerLive: NotificationManager {
 
     func requestAuthorization() async -> Bool {

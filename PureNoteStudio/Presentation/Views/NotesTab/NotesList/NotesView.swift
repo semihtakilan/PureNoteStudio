@@ -70,12 +70,15 @@ struct NotesView: View {
             }
         })
         .overlay(alignment: .bottomTrailing) {
-            addNoteButton
+            OverlayButton(imageName: "square.and.pencil") {
+                router.presentedSheet = .addNote
+            }
         }
         .navigationTitle("Notes")
         .task {
             viewModel.load()
         }
+        // Bunu yapabiliyosan katman dışına taşı
         .navigationDestination(for: NotesRoute.self) { route in
             switch route {
                 
@@ -141,19 +144,19 @@ struct NotesView: View {
         .background(Color(.systemGray6))
     }
 
-    private var addNoteButton: some View {
-        Button {
-            router.presentedSheet = .addNote
-        } label: {
-            Image(systemName: "square.and.pencil")
-        }
-        .padding(10)
-        .font(.system(size: 20))
-        .bold()
-        .foregroundColor(.white)
-        .background(Color(.systemBlue))
-        .clipShape(Circle())
-        .padding(.trailing, 16)
-        .padding(.bottom, 16)
-    }
+//    private var addNoteButton: some View {
+//        Button {
+//            router.presentedSheet = .addNote
+//        } label: {
+//            Image(systemName: "square.and.pencil")
+//        }
+//        .padding(10)
+//        .font(.system(size: 20))
+//        .bold()
+//        .foregroundColor(.white)
+//        .background(Color(.systemBlue))
+//        .clipShape(Circle())
+//        .padding(.trailing, 16)
+//        .padding(.bottom, 16)
+//    }
 }

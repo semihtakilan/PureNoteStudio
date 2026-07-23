@@ -9,10 +9,13 @@ import SwiftUI
 
 struct NoteDetailView: View {
     @State private var viewModel: NoteDetailViewModel
-    @State private var editorWidth: CGFloat = 0
     
     @Environment(NotesRouter.self)
     private var router
+    
+    private var editorWidth: CGFloat {
+        (UIScreen.current?.bounds.width ?? 390) - 32
+    }
     
     init(
         note: Note,
@@ -46,11 +49,39 @@ struct NoteDetailView: View {
                     attributedText: $viewModel.attributedText,
                     placeholder: "",
                     resetStyleTrigger: $viewModel.resetStyleTrigger,
-                    selectedRange: $viewModel.selectedRange
+                    selectedRange: $viewModel.selectedRange,
+                    isFocused: $viewModel.isFocused
                 )
+                .padding(.horizontal)
+            }
+            
+            if viewModel.isFocused {
+                HStack {
+                    AttachmentMenu(
+                        onImageLoaded: { image in
+                            Task {
+                                await viewModel.insertImage(image, editorWidth: editorWidth)
+                            }
+                        },
+                        onCameraTapped: {
+                            print("Kamera özelliği yakında eklenecek!")
+                        }
+                    )
+                    
+                    Spacer()
+                    
+                    Button {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    } label: {
+                        Image(systemName: "keyboard.chevron.compact.down")
+                            .foregroundColor(.primary)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+                .background(Color(UIColor.systemGray6))
             }
         }
-        .padding()
         .overlay {
             if viewModel.isReminderAlertPresented {
                 ReminderAlertView(
@@ -64,14 +95,6 @@ struct NoteDetailView: View {
             }
         }
         .navigationTitle("")
-        .background(
-            GeometryReader { geo in
-                Color.clear
-                    .onAppear {
-                        editorWidth = geo.size.width - 32
-                    }
-            }
-        )
         .toolbar{
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
@@ -93,20 +116,6 @@ struct NoteDetailView: View {
                 } label : {
                     Label("Options", systemImage: "ellipsis")
                 }
-            }
-            
-            ToolbarItemGroup(placement: .bottomBar) {
-                AttachmentMenu(
-                    onImageLoaded: { image in
-                        Task {
-                            await viewModel.insertImage(image, editorWidth: editorWidth)
-                        }
-                    },
-                    onCameraTapped: {
-                        print("Kamera özelliği yakında eklenecek!")
-                    }
-                )
-                Spacer() 
             }
         }
         .task(id: editorWidth) {

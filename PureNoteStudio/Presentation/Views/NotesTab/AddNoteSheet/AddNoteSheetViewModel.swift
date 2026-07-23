@@ -20,6 +20,7 @@ final class AddNoteSheetViewModel {
     var selectedPhoto: PhotosPickerItem?
     var shouldResetEditorStyle: Bool = false
     var selectedRange: NSRange = NSRange(location: 0, length: 0)
+    var isFocused: Bool = false
     
     init(
         noteRepository: NoteRepository,

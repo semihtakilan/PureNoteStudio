@@ -56,32 +56,18 @@ struct FoldersView: View {
         }
         .background(Color(.systemGray6))
         .overlay(alignment: .bottomTrailing) {
-            addFolderButton
-        }
-    }
-    
-    private var addFolderButton: some View {
-        Button {
-            viewModel.presentedAlert = true
-        } label: {
-            Image(systemName: "folder.badge.plus")
-        }
-        .padding(10)
-        .font(.system(size: 20))
-        .bold()
-        .foregroundColor(.white)
-        .background(Color(.systemBlue))
-        .clipShape(Circle())
-        .padding(.trailing, 16)
-        .padding(.bottom, 16)
-        .alert("New Folder", isPresented: $viewModel.presentedAlert) {
-            TextField("Unnamed folder", text: $viewModel.categoryName)
-            
-            Button("Cancel", role: .cancel) {
-                viewModel.alertCancel()
+            OverlayButton(imageName: "folder.badge.plus") {
+                viewModel.presentedAlert = true
             }
-            Button("OK") {
-                viewModel.addCategory()
+            .alert("New Folder", isPresented: $viewModel.presentedAlert) {
+                TextField("Unnamed folder", text: $viewModel.categoryName)
+                
+                Button("Cancel", role: .cancel) {
+                    viewModel.alertCancel()
+                }
+                Button("OK") {
+                    viewModel.addCategory()
+                }
             }
         }
     }

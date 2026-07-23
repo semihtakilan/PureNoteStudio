@@ -6,14 +6,16 @@
 //
 
 import SwiftUI
-import PhotosUI
-
 
 struct AddNoteSheet: View {
     @State var viewModel: AddNoteSheetViewModel
     
     @Environment(NotesRouter.self)
     private var router
+    
+    private var editorWidth: CGFloat {
+        (UIScreen.current?.bounds.width ?? 390) - 32
+    }
     
     init(
         noteRepository: NoteRepository,
@@ -26,9 +28,6 @@ struct AddNoteSheet: View {
             )
         )
     }
-    
-    @State private var selectedPhoto: PhotosPickerItem?
-    @State private var editorWidth: CGFloat = 300
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -44,6 +43,7 @@ struct AddNoteSheet: View {
                 .disabled(viewModel.title.isEmpty)
             }
             .padding(.top, 16)
+            .padding(.horizontal)
             
             Divider().ignoresSafeArea()
             
@@ -56,57 +56,55 @@ struct AddNoteSheet: View {
             .font(.subheadline)
             .opacity(0.5)
             .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.horizontal)
             
             // MARK: -Title
             TextField("New Title", text: $viewModel.title)
                 .font(.largeTitle)
                 .bold()
+                .padding(.horizontal)
             
             // MARK: - Content
             RichTextEditor(
                 attributedText: $viewModel.attributedText,
                 placeholder: "Start typing your note...",
                 resetStyleTrigger: $viewModel.shouldResetEditorStyle,
-                selectedRange: $viewModel.selectedRange
+                selectedRange: $viewModel.selectedRange,
+                isFocused: $viewModel.isFocused
             )
+            .padding(.horizontal) // Padding eklendi
             .onChange(of: viewModel.shouldResetEditorStyle) { _, shouldReset in
                 if shouldReset {
                     viewModel.shouldResetEditorStyle = false
                 }
             }
-            .background(
-                GeometryReader { geo in
-                    Color.clear
-                        .onAppear { editorWidth = geo.size.width }
-                        .onChange(of: geo.size.width) { _, newWidth in
-                            editorWidth = newWidth
+            
+            // MARK: - Accessory Bar
+            if viewModel.isFocused {
+                HStack {
+                    AttachmentMenu(
+                        onImageLoaded: { image in
+                            Task {
+                                await viewModel.insertImage(image, editorWidth: editorWidth)
+                            }
+                        },
+                        onCameraTapped: {
+                            print("Kamera özelliği yakında eklenecek!")
                         }
-                }
-            )
-
-            // MARK: - BottomToolbar
-            HStack {
-                AttachmentMenu(
-                    onImageLoaded: { image in
-                        Task {
-                            await viewModel.insertImage(image, editorWidth: editorWidth)
-                        }
-                    },
-                    onCameraTapped: {
-                        print("Kamera özelliği yakında eklenecek!")
+                    )
+                    
+                    Spacer()
+                    
+                    Button {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    } label: {
+                        Image(systemName: "keyboard.chevron.compact.down")
+                            .foregroundColor(.primary)
                     }
-                )
-                
-                Spacer()
-            }
-        }
-        .padding()
-        .onChange(of: viewModel.selectedPhoto) { _, newItem in
-            Task {
-                if let data = try? await newItem?.loadTransferable(type: Data.self),
-                   let image = UIImage(data: data) {
-                    await viewModel.insertImage(image, editorWidth: editorWidth)
                 }
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+                .background(Color(UIColor.systemGray6))
             }
         }
     }
