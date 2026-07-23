@@ -30,21 +30,24 @@ struct RichTextEditor: UIViewRepresentable {
         if attributedText.string.isEmpty {
             textView.text = placeholder
             textView.textColor = .placeholderText
+        } else {
+            textView.attributedText = attributedText
         }
         
         return textView
     }
     
     func updateUIView(_ uiView: UITextView, context: Context) {
-        let isCurrentlyPlaceholder = uiView.textColor == .placeholderText
+        let isCurrentlyPlaceholder = uiView.text == placeholder
         
         if attributedText.string.isEmpty {
-            if !context.coordinator.isFocused && !isCurrentlyPlaceholder {
+            if !context.coordinator.isEditing && !isCurrentlyPlaceholder {
                 uiView.text = placeholder
                 uiView.textColor = .placeholderText
             }
         } else {
             if isCurrentlyPlaceholder {
+                uiView.text = ""
                 uiView.textColor = .label
             }
             
@@ -94,6 +97,8 @@ struct RichTextEditor: UIViewRepresentable {
         let placeholder: String
         weak var textView: UITextView?
         
+        var isEditing: Bool = false
+        
         init(attributedText: Binding<NSAttributedString>, selectedRange: Binding<NSRange>, isFocused: Binding<Bool>, placeholder: String) {
             self._attributedText = attributedText
             self._selectedRange = selectedRange
@@ -102,8 +107,10 @@ struct RichTextEditor: UIViewRepresentable {
         }
         
         func textViewDidBeginEditing(_ textView: UITextView) {
+            self.isEditing = true
             Task { @MainActor in self.isFocused = true }
-            if textView.textColor == .placeholderText {
+            
+            if textView.text == placeholder {
                 textView.text = ""
                 textView.textColor = .label
                 textView.font = UIFont.preferredFont(forTextStyle: .body)
@@ -111,7 +118,9 @@ struct RichTextEditor: UIViewRepresentable {
         }
         
         func textViewDidEndEditing(_ textView: UITextView) {
+            self.isEditing = false
             Task { @MainActor in self.isFocused = false }
+            
             if textView.text.isEmpty {
                 textView.text = placeholder
                 textView.textColor = .placeholderText
@@ -119,7 +128,7 @@ struct RichTextEditor: UIViewRepresentable {
         }
         
         func textViewDidChange(_ textView: UITextView) {
-            if textView.textColor == .placeholderText {
+            if textView.text == placeholder {
                 attributedText = NSAttributedString(string: "")
             } else {
                 Task { @MainActor in
@@ -129,7 +138,7 @@ struct RichTextEditor: UIViewRepresentable {
         }
         
         func textViewDidChangeSelection(_ textView: UITextView) {
-            guard textView.textColor != .placeholderText else { return }
+            guard textView.text != placeholder else { return }
             Task { @MainActor in
                 self.selectedRange = textView.selectedRange
             }
