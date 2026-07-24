@@ -14,16 +14,23 @@ final class Note {
     var title: String
     var contentText: String
     var contentData: Data?
-    var lastEdit: Date = Date()
+    var lastEdit: Date
     var category: Category?
     
     var reminderDate: Date?
     var notificationID: String?
     
-    init(title: String, contentText: String, contentData: Data? = nil, category: Category? = nil) {
+    init(
+        title: String,
+        contentText: String,
+        contentData: Data? = nil,
+        category: Category? = nil,
+        lastEdit: Date = Date()
+    ) {
         self.title = title
         self.contentText = contentText
         self.contentData = contentData
         self.category = category
+        self.lastEdit = lastEdit
     }
 }
