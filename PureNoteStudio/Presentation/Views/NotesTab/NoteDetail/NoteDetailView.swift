@@ -36,51 +36,55 @@ struct NoteDetailView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 0) {
             Text(viewModel.title)
                 .font(.largeTitle)
                 .bold()
+                .padding(.horizontal)
             
             if viewModel.isProcessing {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                RichTextEditor(
-                    attributedText: $viewModel.attributedText,
-                    placeholder: "",
-                    resetStyleTrigger: $viewModel.resetStyleTrigger,
-                    selectedRange: $viewModel.selectedRange,
-                    isFocused: $viewModel.isFocused
-                )
-            }
-            
-            if viewModel.isFocused {
-                HStack {
-                    AttachmentMenu(
-                        onImageLoaded: { image in
-                            Task {
-                                await viewModel.insertImage(image, editorWidth: editorWidth)
-                            }
-                        },
-                        onCameraTapped: {
-                            print("Kamera özelliği yakında eklenecek!")
-                        }
+                VStack(spacing: 0) {
+                    RichTextEditor(
+                        attributedText: $viewModel.attributedText,
+                        resetStyleTrigger: $viewModel.resetStyleTrigger,
+                        selectedRange: $viewModel.selectedRange,
+                        isFocused: $viewModel.isFocused,
+                        placeholder: ""
                     )
-                    
-                    Spacer()
-                    
-                    Button {
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    } label: {
-                        Image(systemName: "keyboard.chevron.compact.down")
-                            .foregroundColor(.primary)
-                    }
+                    .padding(.horizontal)
                 }
-                .padding(.vertical, 10)
-                .background(Color(UIColor.systemGray6))
+                
+                if viewModel.isFocused {
+                    HStack {
+                        AttachmentMenu(
+                            onImageLoaded: { image in
+                                Task {
+                                    await viewModel.insertImage(image, editorWidth: editorWidth)
+                                }
+                            },
+                            onCameraTapped: {
+                                print("Kamera özelliği yakında eklenecek!")
+                            }
+                        )
+                        
+                        Spacer()
+                        
+                        Button {
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        } label: {
+                            Image(systemName: "keyboard.chevron.compact.down")
+                                .foregroundColor(.primary)
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 10)
+                    .background(Color(UIColor.systemGray6))
+                }
             }
         }
-        .padding(.horizontal)
         .overlay {
             if viewModel.isReminderAlertPresented {
                 ReminderAlertView(

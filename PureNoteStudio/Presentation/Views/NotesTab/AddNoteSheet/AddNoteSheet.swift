@@ -42,6 +42,7 @@ struct AddNoteSheet: View {
                 }
                 .disabled(viewModel.title.isEmpty)
             }
+            .padding(.horizontal)
             .padding(.top, 16)
             
             Divider().ignoresSafeArea()
@@ -60,48 +61,52 @@ struct AddNoteSheet: View {
             TextField("New Title", text: $viewModel.title)
                 .font(.largeTitle)
                 .bold()
+                .padding(.horizontal)
             
             // MARK: - Content
-            RichTextEditor(
-                attributedText: $viewModel.attributedText,
-                placeholder: "Start typing your note...",
-                resetStyleTrigger: $viewModel.shouldResetEditorStyle,
-                selectedRange: $viewModel.selectedRange,
-                isFocused: $viewModel.isFocused
-            )
-            .onChange(of: viewModel.shouldResetEditorStyle) { _, shouldReset in
-                if shouldReset {
-                    viewModel.shouldResetEditorStyle = false
-                }
-            }
-            
-            // MARK: - Accessory Bar
-            if viewModel.isFocused {
-                HStack {
-                    AttachmentMenu(
-                        onImageLoaded: { image in
-                            Task {
-                                await viewModel.insertImage(image, editorWidth: editorWidth)
-                            }
-                        },
-                        onCameraTapped: {
-                            print("Kamera özelliği yakında eklenecek!")
-                        }
-                    )
-                    
-                    Spacer()
-                    
-                    Button {
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    } label: {
-                        Image(systemName: "keyboard.chevron.compact.down")
-                            .foregroundColor(.primary)
+            VStack(spacing: 0) {
+                RichTextEditor(
+                    attributedText: $viewModel.attributedText,
+                    resetStyleTrigger: $viewModel.shouldResetEditorStyle,
+                    selectedRange: $viewModel.selectedRange,
+                    isFocused: $viewModel.isFocused,
+                    placeholder: "Start typing your note..."
+                )
+                .padding(.horizontal)
+                .onChange(of: viewModel.shouldResetEditorStyle) { _, shouldReset in
+                    if shouldReset {
+                        viewModel.shouldResetEditorStyle = false
                     }
                 }
-                .padding(.vertical, 10)
-                .background(Color(UIColor.systemGray6))
+                
+                // MARK: - Accessory Bar
+                if viewModel.isFocused {
+                    HStack {
+                        AttachmentMenu(
+                            onImageLoaded: { image in
+                                Task {
+                                    await viewModel.insertImage(image, editorWidth: editorWidth)
+                                }
+                            },
+                            onCameraTapped: {
+                                print("Kamera özelliği yakında eklenecek!")
+                            }
+                        )
+                        
+                        Spacer()
+                        
+                        Button {
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        } label: {
+                            Image(systemName: "keyboard.chevron.compact.down")
+                                .foregroundColor(.primary)
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 10)
+                    .background(Color(UIColor.systemGray6))
+                }
             }
         }
-        .padding(.horizontal)
     }
 }

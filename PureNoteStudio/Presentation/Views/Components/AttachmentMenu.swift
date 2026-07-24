@@ -50,5 +50,6 @@ struct AttachmentMenu: View {
                 }
             }
         }
+        .background(.clear)
     }
 }

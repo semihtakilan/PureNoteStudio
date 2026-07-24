@@ -11,10 +11,10 @@ import UIKit
 
 struct RichTextEditor: UIViewRepresentable {
     @Binding var attributedText: NSAttributedString
-    var placeholder: String = ""
     @Binding var resetStyleTrigger: Bool
     @Binding var selectedRange: NSRange
     @Binding var isFocused: Bool
+    var placeholder: String = ""
     
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
