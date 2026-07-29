@@ -11,13 +11,12 @@ struct SettingsView: View {
     let appDependencies: AppDependencies
     
     @AppStorage("appTheme") private var appTheme: AppTheme = .system
+    @AppStorage("appFontSize") private var appFontSize: AppFontSize = .medium
     
     @State private var viewModel: SettingsViewModel
     
-    let fontSizes = ["Small", "Medium", "Large", "Huge"]
     let layouts: [String] = ["List View", "Grid View"]
     
-    @State private var selectedFontSize: String = "Medium"
     @State private var selectedLayout: String = "List View"
     
     init(appDependencies: AppDependencies) {
@@ -33,9 +32,9 @@ struct SettingsView: View {
                 }
                 
                 Section("Style") {
-                    Picker("Font size", selection: $selectedFontSize) {
-                        ForEach(fontSizes, id:\.self) { fontSize in
-                            Text(fontSize).tag(fontSize)
+                    Picker("Font size", selection: $appFontSize) {
+                        ForEach(AppFontSize.allCases, id:\.self) { size in
+                            Text(size.rawValue).tag(size)
                         }
                     }
                     Picker("Layout", selection: $selectedLayout) {

@@ -11,6 +11,9 @@ import SwiftUI
 final class RootTabViewModel {
     
     private let authService: AuthenticationServiceProtocol
+
+    private let defaults = UserDefaults.standard
+    private let faceIDKey = "faceIDState"
     
     @ObservationIgnored
     @AppStorage("faceIDState") private var faceIDState: Bool = true
@@ -18,6 +21,14 @@ final class RootTabViewModel {
     
     init(authService: AuthenticationServiceProtocol) {
         self.authService = authService
+        
+        if defaults.object(forKey: faceIDKey) == nil {
+            defaults.set(true, forKey: faceIDKey)
+        }
+        
+        let faceIDEnabled = defaults.bool(forKey: faceIDKey)
+        
+        self.isUnlocked = !faceIDEnabled
     }
     
     func authenticate() {

@@ -15,6 +15,7 @@ struct RootTabView: View {
     var router
     
     @AppStorage("appTheme") private var appTheme: AppTheme = .system
+    @AppStorage("appFontSize") private var appFontSize: AppFontSize = .medium
     
     @State private(set) var viewModel: RootTabViewModel
     
@@ -34,6 +35,7 @@ struct RootTabView: View {
             }
         }
         .onAppear(perform: viewModel.authenticate)
+        .environment(\.sizeCategory, appFontSize.dynamicType)
         .preferredColorScheme(appTheme.colorScheme)
     }
 }

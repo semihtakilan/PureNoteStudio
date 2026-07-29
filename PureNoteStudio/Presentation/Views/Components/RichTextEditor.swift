@@ -5,7 +5,6 @@
 //  Created by Semih TAKILAN on 7.07.2026.
 //
 
-
 import SwiftUI
 import UIKit
 
@@ -16,10 +15,14 @@ struct RichTextEditor: UIViewRepresentable {
     @Binding var isFocused: Bool
     var placeholder: String = ""
     
+    @AppStorage("appFontSize") private var appFontSize: AppFontSize = .medium
+    
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
         textView.delegate = context.coordinator
-        textView.font = UIFont.preferredFont(forTextStyle: .body)
+        
+        textView.font = UIFont.systemFont(ofSize: appFontSize.uiFontPoint)
+        
         textView.isScrollEnabled = true
         textView.isEditable = true
         textView.backgroundColor = .clear
@@ -39,6 +42,10 @@ struct RichTextEditor: UIViewRepresentable {
     
     func updateUIView(_ uiView: UITextView, context: Context) {
         let isCurrentlyPlaceholder = uiView.text == placeholder
+        
+        if uiView.font?.pointSize != appFontSize.uiFontPoint {
+            uiView.font = UIFont.systemFont(ofSize: appFontSize.uiFontPoint)
+        }
         
         if attributedText.string.isEmpty {
             if !context.coordinator.isEditing && !isCurrentlyPlaceholder {
@@ -64,7 +71,7 @@ struct RichTextEditor: UIViewRepresentable {
         }
         
         if resetStyleTrigger {
-            let resetFont = UIFont.preferredFont(forTextStyle: .body)
+            let resetFont = UIFont.systemFont(ofSize: appFontSize.uiFontPoint)
             
             let newAttributes: [NSAttributedString.Key: Any] = [
                 .font: resetFont,
@@ -86,7 +93,8 @@ struct RichTextEditor: UIViewRepresentable {
             attributedText: $attributedText,
             selectedRange: $selectedRange,
             isFocused: $isFocused,
-            placeholder: placeholder
+            placeholder: placeholder,
+            appFontSize: appFontSize
         )
     }
     
@@ -95,15 +103,17 @@ struct RichTextEditor: UIViewRepresentable {
         @Binding var selectedRange: NSRange
         @Binding var isFocused: Bool
         let placeholder: String
+        var appFontSize: AppFontSize
         weak var textView: UITextView?
         
         var isEditing: Bool = false
         
-        init(attributedText: Binding<NSAttributedString>, selectedRange: Binding<NSRange>, isFocused: Binding<Bool>, placeholder: String) {
+        init(attributedText: Binding<NSAttributedString>, selectedRange: Binding<NSRange>, isFocused: Binding<Bool>, placeholder: String, appFontSize: AppFontSize) {
             self._attributedText = attributedText
             self._selectedRange = selectedRange
             self._isFocused = isFocused
             self.placeholder = placeholder
+            self.appFontSize = appFontSize
         }
         
         func textViewDidBeginEditing(_ textView: UITextView) {
@@ -113,7 +123,7 @@ struct RichTextEditor: UIViewRepresentable {
             if textView.text == placeholder {
                 textView.text = ""
                 textView.textColor = .label
-                textView.font = UIFont.preferredFont(forTextStyle: .body)
+                textView.font = UIFont.systemFont(ofSize: appFontSize.uiFontPoint)
             }
         }
         
