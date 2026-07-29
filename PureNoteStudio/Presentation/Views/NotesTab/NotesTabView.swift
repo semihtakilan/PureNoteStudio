@@ -1,5 +1,5 @@
 //
-//  NotesTabCoordinator.swift
+//  NotesTabView.swift
 //  PureNoteStudio
 //
 //  Created by Semih TAKILAN on 23.07.2026.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NotesTabCoordinator: View {
+struct NotesTabView: View {
     let appDependencies: AppDependencies
     
     @State private var viewModel: NotesViewModel

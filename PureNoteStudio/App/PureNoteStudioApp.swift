@@ -21,7 +21,7 @@ struct PureNoteStudioApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootTabView()
+            RootTabView(appDependencies: dependencies)
                 .environment(dependencies)
                 .environment(tabRouter)
                 .modelContainer(dependencies.modelContainer)

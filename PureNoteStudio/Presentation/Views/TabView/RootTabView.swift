@@ -9,36 +9,31 @@ import SwiftUI
 import SwiftData
 
 struct RootTabView: View {
-    @Environment(AppDependencies.self)
-    private var appDependencies
+    let appDependencies: AppDependencies
     
     @Environment(TabRouter.self)
-    private var router
+    var router
     
     @AppStorage("appTheme") private var appTheme: AppTheme = .system
     
+    @State private(set) var viewModel: RootTabViewModel
+    
+    init(appDependencies: AppDependencies) {
+        self.appDependencies = appDependencies
+        self._viewModel = State(initialValue: RootTabViewModel(authService: appDependencies.authService))
+    }
+    
     var body: some View {
-        TabView(selection: Binding (
-            get: { router.selectedTab },
-            set: { router.selectedTab = $0 }
-        )) {
-            
-            NotesTabCoordinator(appDependencies: appDependencies)
-                .tabItem {
-                    Label("Notes", systemImage: "text.page")
-                }
-                .tag(Tab.notes)
-            
-            NavigationStack {
-                SettingsView()
+        Group {
+            if viewModel.isUnlocked {
+                mainTabView
+                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
+            } else {
+                lockedView
+                    .transition(.opacity)
             }
-            .tabItem {
-                Label("Settings", systemImage: "gearshape")
-            }
-            .tag(Tab.settings)
-            
         }
+        .onAppear(perform: viewModel.authenticate)
         .preferredColorScheme(appTheme.colorScheme)
-        .modelContainer(appDependencies.modelContainer)
     }
 }

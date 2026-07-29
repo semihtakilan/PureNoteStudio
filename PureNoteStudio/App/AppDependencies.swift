@@ -19,6 +19,7 @@ final class AppDependencies {
     
     let richTextService: RichTextServiceProtocol
     let notificationManager: NotificationManager
+    let authService: AuthenticationServiceProtocol
     
     init() {
         let schema = Schema([Note.self, Category.self])
@@ -33,5 +34,6 @@ final class AppDependencies {
         self.categoryRepository = CategoryRepositoryLive(modelContext: modelContext)
         self.richTextService = RichTextService()
         self.notificationManager = NotificationManagerLive()
+        self.authService = AuthenticationServiceLive()
     }
 }
