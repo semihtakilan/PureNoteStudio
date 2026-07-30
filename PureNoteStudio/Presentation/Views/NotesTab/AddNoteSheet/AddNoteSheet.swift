@@ -70,6 +70,7 @@ struct AddNoteSheet: View {
                     resetStyleTrigger: $viewModel.shouldResetEditorStyle,
                     selectedRange: $viewModel.selectedRange,
                     isFocused: $viewModel.isFocused,
+                    formatState: $viewModel.formatState,
                     placeholder: "Start typing your note..."
                 )
                 .padding(.horizontal)
@@ -81,30 +82,14 @@ struct AddNoteSheet: View {
                 
                 // MARK: - Accessory Bar
                 if viewModel.isFocused {
-                    HStack {
-                        AttachmentMenu(
-                            onImageLoaded: { image in
-                                Task {
-                                    await viewModel.insertImage(image, editorWidth: editorWidth)
-                                }
-                            },
-                            onCameraTapped: {
-                                print("Kamera özelliği yakında eklenecek!")
-                            }
-                        )
-                        
-                        Spacer()
-                        
-                        Button {
-                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                        } label: {
-                            Image(systemName: "keyboard.chevron.compact.down")
-                                .foregroundColor(.primary)
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 10)
-                    .background(Color(UIColor.systemGray6))
+                    RichTextAccessoryBar(
+                        formatState: $viewModel.formatState,
+                        onImageLoaded: { image in
+                            Task { await viewModel.insertImage(image, editorWidth: editorWidth) }
+                        },
+                        onCameraTapped: { print("Kamera özelliği yakında eklenecek!") },
+                        editorWidth: editorWidth
+                    )
                 }
             }
         }

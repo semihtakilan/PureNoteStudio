@@ -8,21 +8,24 @@
 import SwiftUI
 import UIKit
 
+struct RichTextFormatState: Equatable {
+    var isBold: Bool = false
+    var isItalic: Bool = false
+    var fontSize: CGFloat = 17
+}
+
 struct RichTextEditor: UIViewRepresentable {
     @Binding var attributedText: NSAttributedString
     @Binding var resetStyleTrigger: Bool
     @Binding var selectedRange: NSRange
     @Binding var isFocused: Bool
-    var placeholder: String = ""
+    @Binding var formatState: RichTextFormatState
     
-    @AppStorage("appFontSize") private var appFontSize: AppFontSize = .medium
+    var placeholder: String = ""
     
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
         textView.delegate = context.coordinator
-        
-        textView.font = UIFont.systemFont(ofSize: appFontSize.uiFontPoint)
-        
         textView.isScrollEnabled = true
         textView.isEditable = true
         textView.backgroundColor = .clear
@@ -43,10 +46,20 @@ struct RichTextEditor: UIViewRepresentable {
     func updateUIView(_ uiView: UITextView, context: Context) {
         let isCurrentlyPlaceholder = uiView.text == placeholder
         
-        if uiView.font?.pointSize != appFontSize.uiFontPoint {
-            uiView.font = UIFont.systemFont(ofSize: appFontSize.uiFontPoint)
+        // 🚀 BİÇİMLENDİRME: Dışarıdan butona basıldığında stili uygula
+        if context.coordinator.lastKnownFormatState != formatState && !isCurrentlyPlaceholder {
+            applyFormatting(to: uiView, state: formatState)
+            context.coordinator.lastKnownFormatState = formatState
+            
+            // Metin seçiliyken format uygulandıysa AttributedText değişmiştir, ViewModel'a bildir
+            if uiView.selectedRange.length > 0 {
+                Task { @MainActor in
+                    self.attributedText = uiView.attributedText
+                }
+            }
         }
         
+        // Placeholder Kontrolleri
         if attributedText.string.isEmpty {
             if !context.coordinator.isEditing && !isCurrentlyPlaceholder {
                 uiView.text = placeholder
@@ -70,8 +83,15 @@ struct RichTextEditor: UIViewRepresentable {
             }
         }
         
+        // Resim vb. eklenince stili sıfırlama tetikleyicisi
         if resetStyleTrigger {
-            let resetFont = UIFont.systemFont(ofSize: appFontSize.uiFontPoint)
+            var traits: UIFontDescriptor.SymbolicTraits = []
+            if formatState.isBold { traits.insert(.traitBold) }
+            if formatState.isItalic { traits.insert(.traitItalic) }
+            
+            let descriptor = UIFont.systemFont(ofSize: formatState.fontSize).fontDescriptor
+            let fontDescriptor = descriptor.withSymbolicTraits(traits) ?? descriptor
+            let resetFont = UIFont(descriptor: fontDescriptor, size: formatState.fontSize)
             
             let newAttributes: [NSAttributedString.Key: Any] = [
                 .font: resetFont,
@@ -88,13 +108,37 @@ struct RichTextEditor: UIViewRepresentable {
         }
     }
     
+    // 🚀 YARDIMCI FONKSİYON: Yazıyı şekillendiren asıl mekanizma
+    private func applyFormatting(to textView: UITextView, state: RichTextFormatState) {
+        var traits: UIFontDescriptor.SymbolicTraits = []
+        if state.isBold { traits.insert(.traitBold) }
+        if state.isItalic { traits.insert(.traitItalic) }
+        
+        let descriptor = UIFont.systemFont(ofSize: state.fontSize).fontDescriptor
+        let fontDescriptor = descriptor.withSymbolicTraits(traits) ?? descriptor
+        let updatedFont = UIFont(descriptor: fontDescriptor, size: state.fontSize)
+        
+        // 1. Durum: Metin seçiliyse (Highlight), seçili yeri formatla
+        if textView.selectedRange.length > 0 {
+            let mutableAttrString = NSMutableAttributedString(attributedString: textView.attributedText)
+            mutableAttrString.addAttribute(.font, value: updatedFont, range: textView.selectedRange)
+            textView.attributedText = mutableAttrString
+        }
+        
+        // 2. Durum: Yeni yazılacak karakterler için klavye hafızasını (Typing Attributes) güncelle
+        var typingAttributes = textView.typingAttributes
+        typingAttributes[.font] = updatedFont
+        typingAttributes[.foregroundColor] = UIColor.label
+        textView.typingAttributes = typingAttributes
+    }
+    
     func makeCoordinator() -> Coordinator {
         Coordinator(
             attributedText: $attributedText,
             selectedRange: $selectedRange,
             isFocused: $isFocused,
-            placeholder: placeholder,
-            appFontSize: appFontSize
+            formatState: $formatState,
+            placeholder: placeholder
         )
     }
     
@@ -102,18 +146,20 @@ struct RichTextEditor: UIViewRepresentable {
         @Binding var attributedText: NSAttributedString
         @Binding var selectedRange: NSRange
         @Binding var isFocused: Bool
+        @Binding var formatState: RichTextFormatState
+        
         let placeholder: String
-        var appFontSize: AppFontSize
         weak var textView: UITextView?
         
         var isEditing: Bool = false
+        var lastKnownFormatState = RichTextFormatState()
         
-        init(attributedText: Binding<NSAttributedString>, selectedRange: Binding<NSRange>, isFocused: Binding<Bool>, placeholder: String, appFontSize: AppFontSize) {
+        init(attributedText: Binding<NSAttributedString>, selectedRange: Binding<NSRange>, isFocused: Binding<Bool>, formatState: Binding<RichTextFormatState>, placeholder: String) {
             self._attributedText = attributedText
             self._selectedRange = selectedRange
             self._isFocused = isFocused
+            self._formatState = formatState
             self.placeholder = placeholder
-            self.appFontSize = appFontSize
         }
         
         func textViewDidBeginEditing(_ textView: UITextView) {
@@ -123,7 +169,17 @@ struct RichTextEditor: UIViewRepresentable {
             if textView.text == placeholder {
                 textView.text = ""
                 textView.textColor = .label
-                textView.font = UIFont.systemFont(ofSize: appFontSize.uiFontPoint)
+                
+                // Placeholder silindiğinde formatState'e uygun fontla yazmaya başla
+                var traits: UIFontDescriptor.SymbolicTraits = []
+                if formatState.isBold { traits.insert(.traitBold) }
+                if formatState.isItalic { traits.insert(.traitItalic) }
+                let descriptor = UIFont.systemFont(ofSize: formatState.fontSize).fontDescriptor
+                let fontDescriptor = descriptor.withSymbolicTraits(traits) ?? descriptor
+                
+                let font = UIFont(descriptor: fontDescriptor, size: formatState.fontSize)
+                textView.typingAttributes[.font] = font
+                textView.typingAttributes[.foregroundColor] = UIColor.label
             }
         }
         
@@ -149,8 +205,23 @@ struct RichTextEditor: UIViewRepresentable {
         
         func textViewDidChangeSelection(_ textView: UITextView) {
             guard textView.text != placeholder else { return }
+            
             Task { @MainActor in
                 self.selectedRange = textView.selectedRange
+            }
+            
+            // 🚀 İMLEÇ KONTROLÜ: Kullanıcı farklı bir kelimeye tıkladığında o kelimenin font ayarını UI'a yansıt
+            if let typingFont = textView.typingAttributes[.font] as? UIFont {
+                let isBold = typingFont.fontDescriptor.symbolicTraits.contains(.traitBold)
+                let isItalic = typingFont.fontDescriptor.symbolicTraits.contains(.traitItalic)
+                let newFormat = RichTextFormatState(isBold: isBold, isItalic: isItalic, fontSize: typingFont.pointSize)
+                
+                if self.lastKnownFormatState != newFormat {
+                    Task { @MainActor in
+                        self.formatState = newFormat
+                        self.lastKnownFormatState = newFormat
+                    }
+                }
             }
         }
     }
