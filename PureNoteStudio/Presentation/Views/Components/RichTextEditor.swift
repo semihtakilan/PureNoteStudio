@@ -46,12 +46,10 @@ struct RichTextEditor: UIViewRepresentable {
     func updateUIView(_ uiView: UITextView, context: Context) {
         let isCurrentlyPlaceholder = uiView.text == placeholder
         
-        // 🚀 BİÇİMLENDİRME: Dışarıdan butona basıldığında stili uygula
         if context.coordinator.lastKnownFormatState != formatState && !isCurrentlyPlaceholder {
             applyFormatting(to: uiView, state: formatState)
             context.coordinator.lastKnownFormatState = formatState
             
-            // Metin seçiliyken format uygulandıysa AttributedText değişmiştir, ViewModel'a bildir
             if uiView.selectedRange.length > 0 {
                 Task { @MainActor in
                     self.attributedText = uiView.attributedText
@@ -59,7 +57,6 @@ struct RichTextEditor: UIViewRepresentable {
             }
         }
         
-        // Placeholder Kontrolleri
         if attributedText.string.isEmpty {
             if !context.coordinator.isEditing && !isCurrentlyPlaceholder {
                 uiView.text = placeholder
@@ -83,7 +80,6 @@ struct RichTextEditor: UIViewRepresentable {
             }
         }
         
-        // Resim vb. eklenince stili sıfırlama tetikleyicisi
         if resetStyleTrigger {
             var traits: UIFontDescriptor.SymbolicTraits = []
             if formatState.isBold { traits.insert(.traitBold) }
@@ -108,7 +104,6 @@ struct RichTextEditor: UIViewRepresentable {
         }
     }
     
-    // 🚀 YARDIMCI FONKSİYON: Yazıyı şekillendiren asıl mekanizma
     private func applyFormatting(to textView: UITextView, state: RichTextFormatState) {
         var traits: UIFontDescriptor.SymbolicTraits = []
         if state.isBold { traits.insert(.traitBold) }
@@ -118,14 +113,12 @@ struct RichTextEditor: UIViewRepresentable {
         let fontDescriptor = descriptor.withSymbolicTraits(traits) ?? descriptor
         let updatedFont = UIFont(descriptor: fontDescriptor, size: state.fontSize)
         
-        // 1. Durum: Metin seçiliyse (Highlight), seçili yeri formatla
         if textView.selectedRange.length > 0 {
             let mutableAttrString = NSMutableAttributedString(attributedString: textView.attributedText)
             mutableAttrString.addAttribute(.font, value: updatedFont, range: textView.selectedRange)
             textView.attributedText = mutableAttrString
         }
         
-        // 2. Durum: Yeni yazılacak karakterler için klavye hafızasını (Typing Attributes) güncelle
         var typingAttributes = textView.typingAttributes
         typingAttributes[.font] = updatedFont
         typingAttributes[.foregroundColor] = UIColor.label
@@ -170,7 +163,6 @@ struct RichTextEditor: UIViewRepresentable {
                 textView.text = ""
                 textView.textColor = .label
                 
-                // Placeholder silindiğinde formatState'e uygun fontla yazmaya başla
                 var traits: UIFontDescriptor.SymbolicTraits = []
                 if formatState.isBold { traits.insert(.traitBold) }
                 if formatState.isItalic { traits.insert(.traitItalic) }
@@ -210,7 +202,6 @@ struct RichTextEditor: UIViewRepresentable {
                 self.selectedRange = textView.selectedRange
             }
             
-            // 🚀 İMLEÇ KONTROLÜ: Kullanıcı farklı bir kelimeye tıkladığında o kelimenin font ayarını UI'a yansıt
             if let typingFont = textView.typingAttributes[.font] as? UIFont {
                 let isBold = typingFont.fontDescriptor.symbolicTraits.contains(.traitBold)
                 let isItalic = typingFont.fontDescriptor.symbolicTraits.contains(.traitItalic)
