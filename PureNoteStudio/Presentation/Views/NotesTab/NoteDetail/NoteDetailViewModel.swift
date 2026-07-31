@@ -23,6 +23,7 @@ final class NoteDetailViewModel {
     var resetStyleTrigger: Bool = false
     var selectedRange: NSRange = NSRange(location: 0, length: 0)
     var isFocused: Bool = false
+    var isCameraPresented: Bool = false
     var formatState = RichTextFormatState()
     
     private var originalContentText: String = ""

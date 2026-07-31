@@ -64,11 +64,21 @@ struct NoteDetailView: View {
                         onImageLoaded: { image in
                             Task { await viewModel.insertImage(image, editorWidth: editorWidth) }
                         },
-                        onCameraTapped: { print("Kamera özelliği yakında eklenecek!") },
+                        onCameraTapped: {
+                            viewModel.isCameraPresented = true
+                        },
                         editorWidth: editorWidth
                     )
                 }
             }
+        }
+        .fullScreenCover(isPresented: $viewModel.isCameraPresented) {
+            CameraPicker { image in
+                Task {
+                    await viewModel.insertImage(image, editorWidth: editorWidth)
+                }
+            }
+            .ignoresSafeArea()
         }
         .overlay {
             if viewModel.isReminderAlertPresented {

@@ -4,5 +4,9 @@
 <dict>
 	<key>UIDesignRequiresCompatibility</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>&quot;Camera access permission is required to take and add photos to your notes.&quot;</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>&quot;We need to unlock your data.&quot;</string>
 </dict>
 </plist>
