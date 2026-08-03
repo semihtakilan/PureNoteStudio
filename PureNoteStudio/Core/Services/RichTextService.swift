@@ -83,7 +83,7 @@ final class RichTextService: RichTextServiceProtocol {
         attachment.bounds = CGRect(
             x: 0,
             y: 0,
-            width: maxWidth,
+            width: resized.size.width,
             height: resized.size.height
         )
         

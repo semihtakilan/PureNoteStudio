@@ -35,10 +35,13 @@ struct NoteDetailView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(viewModel.title)
+            TextField("Başlık", text: $viewModel.title)
                 .font(.largeTitle)
                 .bold()
+                .textFieldStyle(.plain)
+                .submitLabel(.done)
                 .padding(.horizontal)
+                .padding(.vertical, 8)
             
             if viewModel.isProcessing {
                 ProgressView()

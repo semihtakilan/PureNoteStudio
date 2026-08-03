@@ -2,15 +2,13 @@
 //  RichTextEditor.swift
 //  PureNoteStudio
 //
-//  Created by Semih TAKILAN on 7.07.2026.
-//
 
 import SwiftUI
 import UIKit
 
 struct RichTextFormatState: Equatable {
-    var isBold: Bool = false
-    var isItalic: Bool = false
+    var isBold = false
+    var isItalic = false
     var fontSize: CGFloat = 17
 }
 
@@ -20,200 +18,216 @@ struct RichTextEditor: UIViewRepresentable {
     @Binding var selectedRange: NSRange
     @Binding var isFocused: Bool
     @Binding var formatState: RichTextFormatState
-    
-    var placeholder: String = ""
-    
+
+    var placeholder = ""
+
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
         textView.delegate = context.coordinator
-        textView.isScrollEnabled = true
-        textView.isEditable = true
         textView.backgroundColor = .clear
+        textView.isEditable = true
+        textView.isSelectable = true
+        textView.isScrollEnabled = true
+        textView.alwaysBounceVertical = true
         textView.showsVerticalScrollIndicator = false
-        
+        textView.adjustsFontForContentSizeCategory = true
+        textView.keyboardDismissMode = .interactive
+        textView.textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 16, right: 4)
+        textView.textContainer.lineFragmentPadding = 0
+        textView.attributedText = attributedText
+        textView.typingAttributes = typingAttributes(for: formatState, basedOn: nil)
+
+        let placeholderLabel = UILabel()
+        placeholderLabel.text = placeholder
+        placeholderLabel.textColor = .placeholderText
+        placeholderLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        placeholderLabel.numberOfLines = 0
+        placeholderLabel.adjustsFontForContentSizeCategory = true
+        placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
+        textView.addSubview(placeholderLabel)
+        NSLayoutConstraint.activate([
+            placeholderLabel.leadingAnchor.constraint(
+                equalTo: textView.leadingAnchor,
+                constant: textView.textContainerInset.left
+            ),
+            placeholderLabel.trailingAnchor.constraint(
+                equalTo: textView.trailingAnchor,
+                constant: -textView.textContainerInset.right
+            ),
+            placeholderLabel.topAnchor.constraint(
+                equalTo: textView.topAnchor,
+                constant: textView.textContainerInset.top
+            )
+        ])
+
         context.coordinator.textView = textView
-        
-        if attributedText.string.isEmpty {
-            textView.text = placeholder
-            textView.textColor = .placeholderText
-        } else {
-            textView.attributedText = attributedText
-        }
-        
+        context.coordinator.placeholderLabel = placeholderLabel
+        context.coordinator.updatePlaceholderVisibility()
+        context.coordinator.lastKnownFormatState = formatState
         return textView
     }
-    
-    func updateUIView(_ uiView: UITextView, context: Context) {
-        let isCurrentlyPlaceholder = uiView.text == placeholder
-        
-        if context.coordinator.lastKnownFormatState != formatState && !isCurrentlyPlaceholder {
-            applyFormatting(to: uiView, state: formatState)
-            context.coordinator.lastKnownFormatState = formatState
-            
-            if uiView.selectedRange.length > 0 {
-                Task { @MainActor in
-                    self.attributedText = uiView.attributedText
-                }
+
+    func updateUIView(_ textView: UITextView, context: Context) {
+        let coordinator = context.coordinator
+
+        if !textView.attributedText.isEqual(to: attributedText) {
+            coordinator.isSynchronizingView = true
+            let range = clampedRange(selectedRange, textLength: attributedText.length)
+            textView.attributedText = attributedText
+            textView.selectedRange = range
+            coordinator.isSynchronizingView = false
+        }
+
+        if coordinator.lastKnownFormatState != formatState {
+            applyFormatting(to: textView, state: formatState)
+            coordinator.lastKnownFormatState = formatState
+
+            if textView.selectedRange.length > 0 {
+                coordinator.publishTextChange()
             }
         }
-        
-        if attributedText.string.isEmpty {
-            if !context.coordinator.isEditing && !isCurrentlyPlaceholder {
-                uiView.text = placeholder
-                uiView.textColor = .placeholderText
-            }
-        } else {
-            if isCurrentlyPlaceholder {
-                uiView.text = ""
-                uiView.textColor = .label
-            }
-            
-            if uiView.attributedText !== attributedText, uiView.attributedText != attributedText {
-                let preservedRange = uiView.selectedRange
-                uiView.attributedText = attributedText
-                
-                if preservedRange.location <= attributedText.length {
-                    uiView.selectedRange = preservedRange
-                } else {
-                    uiView.selectedRange = NSRange(location: attributedText.length, length: 0)
-                }
-            }
-        }
-        
+
         if resetStyleTrigger {
-            var traits: UIFontDescriptor.SymbolicTraits = []
-            if formatState.isBold { traits.insert(.traitBold) }
-            if formatState.isItalic { traits.insert(.traitItalic) }
-            
-            let descriptor = UIFont.systemFont(ofSize: formatState.fontSize).fontDescriptor
-            let fontDescriptor = descriptor.withSymbolicTraits(traits) ?? descriptor
-            let resetFont = UIFont(descriptor: fontDescriptor, size: formatState.fontSize)
-            
-            let newAttributes: [NSAttributedString.Key: Any] = [
-                .font: resetFont,
-                .foregroundColor: UIColor.label
-            ]
-            
-            uiView.typingAttributes = newAttributes
-            uiView.selectedRange = NSRange(location: uiView.attributedText.length, length: 0)
-            
-            let triggerBinding = $resetStyleTrigger
-            Task { @MainActor in
-                triggerBinding.wrappedValue = false
-            }
+            textView.typingAttributes = typingAttributes(for: formatState, basedOn: textView.typingAttributes)
+            textView.selectedRange = clampedRange(selectedRange, textLength: textView.attributedText.length)
+            resetStyleTrigger = false
         }
+
+        coordinator.updatePlaceholderVisibility()
     }
-    
-    private func applyFormatting(to textView: UITextView, state: RichTextFormatState) {
-        var traits: UIFontDescriptor.SymbolicTraits = []
-        if state.isBold { traits.insert(.traitBold) }
-        if state.isItalic { traits.insert(.traitItalic) }
-        
-        let descriptor = UIFont.systemFont(ofSize: state.fontSize).fontDescriptor
-        let fontDescriptor = descriptor.withSymbolicTraits(traits) ?? descriptor
-        let updatedFont = UIFont(descriptor: fontDescriptor, size: state.fontSize)
-        
-        if textView.selectedRange.length > 0 {
-            let mutableAttrString = NSMutableAttributedString(attributedString: textView.attributedText)
-            mutableAttrString.addAttribute(.font, value: updatedFont, range: textView.selectedRange)
-            textView.attributedText = mutableAttrString
-        }
-        
-        var typingAttributes = textView.typingAttributes
-        typingAttributes[.font] = updatedFont
-        typingAttributes[.foregroundColor] = UIColor.label
-        textView.typingAttributes = typingAttributes
-    }
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(
             attributedText: $attributedText,
             selectedRange: $selectedRange,
             isFocused: $isFocused,
-            formatState: $formatState,
-            placeholder: placeholder
+            formatState: $formatState
         )
     }
-    
-    class Coordinator: NSObject, UITextViewDelegate {
+
+    private func applyFormatting(to textView: UITextView, state: RichTextFormatState) {
+        let range = textView.selectedRange
+        let currentFont = font(in: textView, at: range.location)
+        let attributes = typingAttributes(for: state, basedOn: textView.typingAttributes, baseFont: currentFont)
+
+        if range.length > 0 {
+            let mutableText = NSMutableAttributedString(attributedString: textView.attributedText)
+            mutableText.addAttributes(attributes, range: range)
+            textView.attributedText = mutableText
+            textView.selectedRange = range
+        }
+
+        textView.typingAttributes.merge(attributes) { _, new in new }
+    }
+
+    private func typingAttributes(
+        for state: RichTextFormatState,
+        basedOn currentAttributes: [NSAttributedString.Key: Any]?,
+        baseFont: UIFont? = nil
+    ) -> [NSAttributedString.Key: Any] {
+        var attributes = currentAttributes ?? [:]
+        let font = font(with: state, basedOn: baseFont ?? attributes[.font] as? UIFont)
+        attributes[.font] = font
+        attributes[.foregroundColor] = UIColor.label
+        return attributes
+    }
+
+    private func font(in textView: UITextView, at location: Int) -> UIFont? {
+        guard textView.attributedText.length > 0 else { return nil }
+        let index = min(max(location, 0), textView.attributedText.length - 1)
+        return textView.attributedText.attribute(.font, at: index, effectiveRange: nil) as? UIFont
+    }
+
+    private func font(with state: RichTextFormatState, basedOn baseFont: UIFont?) -> UIFont {
+        let source = baseFont ?? UIFont.preferredFont(forTextStyle: .body)
+        var traits = source.fontDescriptor.symbolicTraits
+        traits.remove([.traitBold, .traitItalic])
+        if state.isBold { traits.insert(.traitBold) }
+        if state.isItalic { traits.insert(.traitItalic) }
+
+        let descriptor = source.fontDescriptor.withSymbolicTraits(traits) ?? source.fontDescriptor
+        return UIFont(descriptor: descriptor, size: max(12, min(state.fontSize, 36)))
+    }
+
+    private func clampedRange(_ range: NSRange, textLength: Int) -> NSRange {
+        let location = min(max(range.location, 0), textLength)
+        return NSRange(location: location, length: min(max(range.length, 0), textLength - location))
+    }
+
+    final class Coordinator: NSObject, UITextViewDelegate {
         @Binding var attributedText: NSAttributedString
         @Binding var selectedRange: NSRange
         @Binding var isFocused: Bool
         @Binding var formatState: RichTextFormatState
-        
-        let placeholder: String
+
         weak var textView: UITextView?
-        
-        var isEditing: Bool = false
+        weak var placeholderLabel: UILabel?
+        var isSynchronizingView = false
         var lastKnownFormatState = RichTextFormatState()
-        
-        init(attributedText: Binding<NSAttributedString>, selectedRange: Binding<NSRange>, isFocused: Binding<Bool>, formatState: Binding<RichTextFormatState>, placeholder: String) {
-            self._attributedText = attributedText
-            self._selectedRange = selectedRange
-            self._isFocused = isFocused
-            self._formatState = formatState
-            self.placeholder = placeholder
+
+        init(
+            attributedText: Binding<NSAttributedString>,
+            selectedRange: Binding<NSRange>,
+            isFocused: Binding<Bool>,
+            formatState: Binding<RichTextFormatState>
+        ) {
+            _attributedText = attributedText
+            _selectedRange = selectedRange
+            _isFocused = isFocused
+            _formatState = formatState
         }
-        
+
         func textViewDidBeginEditing(_ textView: UITextView) {
-            self.isEditing = true
-            Task { @MainActor in self.isFocused = true }
-            
-            if textView.text == placeholder {
-                textView.text = ""
-                textView.textColor = .label
-                
-                var traits: UIFontDescriptor.SymbolicTraits = []
-                if formatState.isBold { traits.insert(.traitBold) }
-                if formatState.isItalic { traits.insert(.traitItalic) }
-                let descriptor = UIFont.systemFont(ofSize: formatState.fontSize).fontDescriptor
-                let fontDescriptor = descriptor.withSymbolicTraits(traits) ?? descriptor
-                
-                let font = UIFont(descriptor: fontDescriptor, size: formatState.fontSize)
-                textView.typingAttributes[.font] = font
-                textView.typingAttributes[.foregroundColor] = UIColor.label
-            }
+            isFocused = true
+            updateFormatState(from: textView)
         }
-        
+
         func textViewDidEndEditing(_ textView: UITextView) {
-            self.isEditing = false
-            Task { @MainActor in self.isFocused = false }
-            
-            if textView.text.isEmpty {
-                textView.text = placeholder
-                textView.textColor = .placeholderText
-            }
+            isFocused = false
         }
-        
+
         func textViewDidChange(_ textView: UITextView) {
-            if textView.text == placeholder {
-                attributedText = NSAttributedString(string: "")
-            } else {
-                Task { @MainActor in
-                    self.attributedText = textView.attributedText
-                }
-            }
+            guard !isSynchronizingView else { return }
+            publishTextChange()
+            updatePlaceholderVisibility()
         }
-        
+
         func textViewDidChangeSelection(_ textView: UITextView) {
-            guard textView.text != placeholder else { return }
-            
-            Task { @MainActor in
-                self.selectedRange = textView.selectedRange
+            guard !isSynchronizingView else { return }
+            selectedRange = textView.selectedRange
+            updateFormatState(from: textView)
+        }
+
+        func publishTextChange() {
+            guard let textView else { return }
+            attributedText = textView.attributedText
+        }
+
+        func updatePlaceholderVisibility() {
+            placeholderLabel?.isHidden = !(textView?.text.isEmpty ?? true)
+        }
+
+        private func updateFormatState(from textView: UITextView) {
+            let font = selectedFont(in: textView) ?? UIFont.preferredFont(forTextStyle: .body)
+            let traits = font.fontDescriptor.symbolicTraits
+            let newState = RichTextFormatState(
+                isBold: traits.contains(.traitBold),
+                isItalic: traits.contains(.traitItalic),
+                fontSize: font.pointSize
+            )
+
+            guard newState != lastKnownFormatState else { return }
+            formatState = newState
+            lastKnownFormatState = newState
+        }
+
+        private func selectedFont(in textView: UITextView) -> UIFont? {
+            if let font = textView.typingAttributes[.font] as? UIFont {
+                return font
             }
-            
-            if let typingFont = textView.typingAttributes[.font] as? UIFont {
-                let isBold = typingFont.fontDescriptor.symbolicTraits.contains(.traitBold)
-                let isItalic = typingFont.fontDescriptor.symbolicTraits.contains(.traitItalic)
-                let newFormat = RichTextFormatState(isBold: isBold, isItalic: isItalic, fontSize: typingFont.pointSize)
-                
-                if self.lastKnownFormatState != newFormat {
-                    Task { @MainActor in
-                        self.formatState = newFormat
-                        self.lastKnownFormatState = newFormat
-                    }
-                }
-            }
+            guard textView.attributedText.length > 0 else { return nil }
+            let index = min(textView.selectedRange.location, textView.attributedText.length - 1)
+            return textView.attributedText.attribute(.font, at: index, effectiveRange: nil) as? UIFont
         }
     }
 }

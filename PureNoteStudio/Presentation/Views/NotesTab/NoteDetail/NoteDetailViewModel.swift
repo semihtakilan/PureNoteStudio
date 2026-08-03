@@ -24,10 +24,10 @@ final class NoteDetailViewModel {
     var isFocused: Bool = false
     var isCameraPresented: Bool = false
     var formatState = RichTextFormatState()
+    var title: String
     
     private var originalContentText: String = ""
-    
-    var title: String { note.title }
+    private var originalTitle: String
     
     var isReminderAlertPresented: Bool = false
     var selectedReminderDate: Date = Date()
@@ -44,6 +44,8 @@ final class NoteDetailViewModel {
         self.noteRepository = noteRepository
         self.notificationManager = notificationManager
         self.richTextService = richTextService
+        self.title = note.title
+        self.originalTitle = note.title
         
         setAttributedText()
         if let existingDate = note.reminderDate {
@@ -65,13 +67,15 @@ final class NoteDetailViewModel {
             
             do {
                 let newID = try await notificationManager.scheduleNotification(
-                    title: note.title,
+                    title: title,
                     body: note.contentText.trimmingCharacters(in: .whitespaces),
                     date: selectedReminderDate
                 )
+                note.title = title
                 note.reminderDate = selectedReminderDate
                 note.notificationID = newID
                 try noteRepository.update(note)
+                originalTitle = title
             } catch {
                 errorMessage = error.localizedDescription
             }
@@ -93,16 +97,19 @@ final class NoteDetailViewModel {
         let newContentData = attributedText.toData()
         let newContentText = attributedText.string
         
-        guard newContentText != originalContentText else {
+        guard title != originalTitle || newContentText != originalContentText else {
             return
         }
         
+        note.title = title
         note.contentText = newContentText
         note.contentData = newContentData
         note.lastEdit = Date()
         
         do {
             try noteRepository.update(note)
+            originalTitle = title
+            originalContentText = newContentText
         } catch {
             errorMessage = error.localizedDescription
         }

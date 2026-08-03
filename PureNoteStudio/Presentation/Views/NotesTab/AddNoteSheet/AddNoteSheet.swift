@@ -75,11 +75,6 @@ struct AddNoteSheet: View {
                     placeholder: "Start typing your note..."
                 )
                 .padding(.horizontal)
-                .onChange(of: viewModel.shouldResetEditorStyle) { _, shouldReset in
-                    if shouldReset {
-                        viewModel.shouldResetEditorStyle = false
-                    }
-                }
                 
                 // MARK: - Accessory Bar
                 if viewModel.isFocused {
