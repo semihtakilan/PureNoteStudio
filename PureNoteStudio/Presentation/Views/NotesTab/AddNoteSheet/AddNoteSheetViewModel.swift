@@ -23,6 +23,7 @@ final class AddNoteSheetViewModel {
     var isFocused: Bool = false
     var isCameraPresented: Bool = false
     var formatState = RichTextFormatState()
+    var errorMessage: String?
     
     init(
         noteRepository: NoteRepository,
@@ -32,11 +33,17 @@ final class AddNoteSheetViewModel {
         self.richTextService = richTextService
     }
     
-    func saveNote() throws {
+    func saveNote() -> Bool {
         let contentText = attributedText.string
         let contentData = attributedText.toData()
         let note = Note(title: title, contentText: contentText, contentData: contentData)
-        try noteRepository.add(note)
+        do {
+            try noteRepository.add(note)
+            return true
+        } catch {
+            errorMessage = error.localizedDescription
+            return false
+        }
     }
     
     func insertImage(_ image: UIImage, editorWidth: CGFloat) async {

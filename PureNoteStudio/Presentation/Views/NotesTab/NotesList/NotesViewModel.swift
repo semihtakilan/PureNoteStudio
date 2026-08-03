@@ -14,6 +14,7 @@ enum ViewState<T: Equatable>: Equatable {
     case error(String)
 }
 
+@MainActor
 @Observable
 final class NotesViewModel {
     private(set) var noteRepository: NoteRepository
@@ -73,7 +74,7 @@ final class NotesViewModel {
                 selectedFilter = matched
             }
             
-            selectedChip = ChipData(name: selectedFilter?.name ?? "")
+            selectedChip = chipDatas.first { $0.name == selectedFilter?.name }
             applyFilter()
             
         } catch {
@@ -83,8 +84,13 @@ final class NotesViewModel {
 
     func handleChipChange(_ chip: ChipData?) {
         guard let chip else { return }
-        selectedChip = chip
-        selectedFilter = categoryFilters.first(where: { ($0.name == chip.name) })
+        guard let filter = categoryFilters.first(where: { $0.name == chip.name }) else { return }
+        selectFilter(filter)
+    }
+
+    func selectFilter(_ filter: CategoryFilter) {
+        selectedFilter = filter
+        selectedChip = chipDatas.first { $0.name == filter.name }
         applyFilter()
     }
     
@@ -132,5 +138,3 @@ final class NotesViewModel {
     }
 
 }
-
-

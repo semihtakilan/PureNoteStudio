@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 @Observable
 final class FoldersViewModel {
     private let noteRepository: NoteRepository
@@ -18,6 +19,7 @@ final class FoldersViewModel {
     
     var presentedAlert: Bool = false
     var categoryName: String = ""
+    var errorMessage: String?
     
     init(noteRepository: NoteRepository, categoryRepository: CategoryRepository) {
         self.noteRepository = noteRepository
@@ -35,7 +37,7 @@ final class FoldersViewModel {
             self.items = categories.map{ .folder($0) }
             
         } catch {
-            print("Category load error \(error)")
+            errorMessage = error.localizedDescription
         }
     }
     
@@ -49,7 +51,7 @@ final class FoldersViewModel {
                 try categoryRepository.delete(category)
                 load()
             } catch {
-                print("Category delete error \(error)")
+                errorMessage = error.localizedDescription
             }
         }
     }
@@ -60,10 +62,16 @@ final class FoldersViewModel {
     }
     
     func addCategory() {
+        let name = categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else {
+            errorMessage = "Klasör adı boş olamaz."
+            return
+        }
+
         do {
-            try categoryRepository.addCategory(categoryName)
+            try categoryRepository.addCategory(name)
         } catch {
-            print("Category add error: \(error)")
+            errorMessage = error.localizedDescription
         }
         presentedAlert = false
         categoryName = ""

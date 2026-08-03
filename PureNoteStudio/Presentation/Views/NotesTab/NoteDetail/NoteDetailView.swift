@@ -20,7 +20,6 @@ struct NoteDetailView: View {
     init(
         note: Note,
         noteRepository: NoteRepository,
-        categoryRepository: CategoryRepository,
         notificationManager: NotificationManager,
         richTextService: RichTextServiceProtocol
     ) {
@@ -28,7 +27,6 @@ struct NoteDetailView: View {
             initialValue: NoteDetailViewModel(
                 note: note,
                 noteRepository: noteRepository,
-                categoryRepository: categoryRepository,
                 notificationManager: notificationManager,
                 richTextService: richTextService
             )
@@ -107,8 +105,9 @@ struct NoteDetailView: View {
                     }
                     
                     Button("Delete") {
-                        viewModel.delete()
-                        router.pop()
+                        if viewModel.delete() {
+                            router.pop()
+                        }
                     }
                     
                 } label : {
@@ -123,6 +122,13 @@ struct NoteDetailView: View {
         .onDisappear() {
             viewModel.onDisappear()
         }
+        .alert("Bir hata oluştu", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        )) {
+            Button("Tamam", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
+        }
     }
 }
-

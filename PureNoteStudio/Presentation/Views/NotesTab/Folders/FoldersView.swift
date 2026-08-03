@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FoldersView: View {
     @State private var viewModel: FoldersViewModel
-    @Binding var selectedItem: CategoryFilter?
+    let onFilterSelected: (CategoryFilter) -> Void
     
     @Environment(NotesRouter.self)
     var router
@@ -17,9 +17,9 @@ struct FoldersView: View {
     init(
         noteRepository: NoteRepository,
         categoryRepository: CategoryRepository,
-        selectedItem: Binding<CategoryFilter?>
+        onFilterSelected: @escaping (CategoryFilter) -> Void
     ) {
-        self._selectedItem = selectedItem
+        self.onFilterSelected = onFilterSelected
         self._viewModel = State(
             initialValue: FoldersViewModel(
                 noteRepository: noteRepository,
@@ -55,6 +55,14 @@ struct FoldersView: View {
             viewModel.load()
         }
         .background(Color(.systemGray6))
+        .alert("Bir hata oluştu", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        )) {
+            Button("Tamam", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
+        }
         .overlay(alignment: .bottomTrailing) {
             OverlayButton(imageName: "folder.badge.plus") {
                 viewModel.presentedAlert = true
@@ -72,5 +80,4 @@ struct FoldersView: View {
         }
     }
 }
-
 

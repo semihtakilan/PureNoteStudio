@@ -13,7 +13,6 @@ import UIKit
 @Observable
 final class NoteDetailViewModel {
     private let noteRepository: NoteRepository
-    private let categoryRepository: CategoryRepository
     private let notificationManager: NotificationManager
     private let richTextService: RichTextServiceProtocol
     private(set) var note: Note
@@ -32,17 +31,17 @@ final class NoteDetailViewModel {
     
     var isReminderAlertPresented: Bool = false
     var selectedReminderDate: Date = Date()
+    var errorMessage: String?
+    private var isDeleted = false
     
     init(
         note: Note,
         noteRepository: NoteRepository,
-        categoryRepository: CategoryRepository,
         notificationManager: NotificationManager,
         richTextService: RichTextServiceProtocol
     ) {
         self.note = note
         self.noteRepository = noteRepository
-        self.categoryRepository = categoryRepository
         self.notificationManager = notificationManager
         self.richTextService = richTextService
         
@@ -56,7 +55,7 @@ final class NoteDetailViewModel {
         Task {
             let granted = await notificationManager.requestAuthorization()
             guard granted else {
-                print("Kullanıcı bildirim iznini reddetti.")
+                errorMessage = "Hatırlatıcı için bildirim izni gerekli."
                 return
             }
             
@@ -64,19 +63,17 @@ final class NoteDetailViewModel {
                 notificationManager.removeNotification(with: oldID)
             }
             
-            if let newID = notificationManager.scheduleNotification(
-                title: note.title,
-                body: note.contentText.trimmingCharacters(in: .whitespaces),
-                date: selectedReminderDate
-            ) {
+            do {
+                let newID = try await notificationManager.scheduleNotification(
+                    title: note.title,
+                    body: note.contentText.trimmingCharacters(in: .whitespaces),
+                    date: selectedReminderDate
+                )
                 note.reminderDate = selectedReminderDate
                 note.notificationID = newID
-                
-                do {
-                    try noteRepository.update(note)
-                } catch {
-                    print("Not kaydedilemedi: \(error)")
-                }
+                try noteRepository.update(note)
+            } catch {
+                errorMessage = error.localizedDescription
             }
         }
     }
@@ -92,6 +89,7 @@ final class NoteDetailViewModel {
     }
     
     func onDisappear() {
+        guard !isDeleted else { return }
         let newContentData = attributedText.toData()
         let newContentText = attributedText.string
         
@@ -106,15 +104,18 @@ final class NoteDetailViewModel {
         do {
             try noteRepository.update(note)
         } catch {
-            print("Not güncellenemedi \(error)")
+            errorMessage = error.localizedDescription
         }
     }
     
-    func delete() {
+    func delete() -> Bool {
         do {
             try noteRepository.delete(note)
+            isDeleted = true
+            return true
         } catch {
-            print("Note delete error \(error)")
+            errorMessage = error.localizedDescription
+            return false
         }
     }
     

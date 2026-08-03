@@ -27,7 +27,6 @@ struct NotesTabView: View {
     
     var body: some View {
         @Bindable var notesRouter = router.notesRouter
-        @Bindable var bindableViewModel = viewModel
         
         NavigationStack(path: $notesRouter.path) {
             NotesView(viewModel: viewModel)
@@ -38,7 +37,6 @@ struct NotesTabView: View {
                         NoteDetailView(
                             note: note,
                             noteRepository: appDependencies.noteRepository,
-                            categoryRepository: appDependencies.categoryRepository,
                             notificationManager: appDependencies.notificationManager,
                             richTextService: appDependencies.richTextService
                         )
@@ -47,7 +45,7 @@ struct NotesTabView: View {
                         FoldersView(
                             noteRepository: appDependencies.noteRepository,
                             categoryRepository: appDependencies.categoryRepository,
-                            selectedItem: $bindableViewModel.selectedFilter
+                            onFilterSelected: viewModel.selectFilter
                         )
                         
                     case .moveToFolder(let note):

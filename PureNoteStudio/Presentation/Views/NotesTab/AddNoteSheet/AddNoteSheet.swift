@@ -37,8 +37,9 @@ struct AddNoteSheet: View {
                 Button("Cancel") { router.dissmissSheet() }
                 Spacer()
                 Button("Save") {
-                    try? viewModel.saveNote()
-                    router.dissmissSheet()
+                    if viewModel.saveNote() {
+                        router.dissmissSheet()
+                    }
                 }
                 .disabled(viewModel.title.isEmpty)
             }
@@ -102,6 +103,14 @@ struct AddNoteSheet: View {
                 }
             }
             .ignoresSafeArea()
+        }
+        .alert("Not kaydedilemedi", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        )) {
+            Button("Tamam", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
         }
     }
 }

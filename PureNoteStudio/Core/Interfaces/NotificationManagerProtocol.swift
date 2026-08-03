@@ -9,6 +9,6 @@ import Foundation
 
 protocol NotificationManager {
     func requestAuthorization() async -> Bool
-    func scheduleNotification(title: String, body: String, date: Date) -> String?
+    func scheduleNotification(title: String, body: String, date: Date) async throws -> String
     func removeNotification(with id: String)
 }

@@ -30,8 +30,9 @@ struct MoveToFolder: View {
             List {
                 ForEach(viewModel.items) { item in
                     Button {
-                        viewModel.moveNote(to: item)
-                        router.pop()
+                        if viewModel.moveNote(to: item) {
+                            router.pop()
+                        }
                     } label: {
                         HStack {
                             Image(systemName: item == .uncategorized ? "tray" : "folder.fill")
@@ -53,6 +54,14 @@ struct MoveToFolder: View {
         .navigationTitle("Select Folder")
         .task {
             viewModel.load()
+        }
+        .alert("Bir hata oluştu", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        )) {
+            Button("Tamam", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
         }
     }
 }

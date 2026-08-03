@@ -19,7 +19,7 @@ final class NotificationManagerLive: NotificationManager {
         }
     }
     
-    func scheduleNotification(title: String, body: String, date: Date) -> String? {
+    func scheduleNotification(title: String, body: String, date: Date) async throws -> String {
         let content = UNMutableNotificationContent()
         content.title = title
         
@@ -32,11 +32,7 @@ final class NotificationManagerLive: NotificationManager {
         let requestID = UUID().uuidString
         let request = UNNotificationRequest(identifier: requestID, content: content, trigger: trigger)
         
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Bildirim kurulamadı: \(error)")
-            }
-        }
+        try await UNUserNotificationCenter.current().add(request)
         
         return requestID
     }

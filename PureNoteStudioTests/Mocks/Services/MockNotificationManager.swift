@@ -12,6 +12,7 @@ final class MockNotificationManager: NotificationManager {
     
     var mockAuthorizationResult: Bool = false
     var mockScheduleNotificationID: String? = nil
+    var scheduleNotificationError: Error?
     
     private(set) var requestAuthCallCount = 0
     
@@ -32,11 +33,17 @@ final class MockNotificationManager: NotificationManager {
         title: String,
         body: String,
         date: Date
-    ) -> String? {
+    ) async throws -> String {
         scheduleNotificationCallCount += 1
         scheduleNotificationCapturedTitle = title
         scheduleNotificationCapturedBody = body
         scheduleNotificationCapturedDate = date
+        if let scheduleNotificationError {
+            throw scheduleNotificationError
+        }
+        guard let mockScheduleNotificationID else {
+            throw NSError(domain: "MockNotificationManager", code: 1)
+        }
         return mockScheduleNotificationID
     }
     

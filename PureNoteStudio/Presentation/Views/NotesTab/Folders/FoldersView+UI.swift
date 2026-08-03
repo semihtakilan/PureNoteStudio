@@ -10,7 +10,7 @@ import SwiftUI
 extension FoldersView {
     func FolderRow(item: CategoryFilter, customCount: Int? = nil) -> some View {
         Button {
-            selectedItem = item
+            onFilterSelected(item)
             router.pop()
         } label: {
             HStack {
