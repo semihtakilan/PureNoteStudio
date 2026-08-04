@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct NoteRow: View {
     @Environment(NotesRouter.self)
     private var route

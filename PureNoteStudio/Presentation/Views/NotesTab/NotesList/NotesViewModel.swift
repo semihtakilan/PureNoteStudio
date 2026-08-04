@@ -136,5 +136,14 @@ final class NotesViewModel {
             state = .error(error.localizedDescription)
         }
     }
+    
+    func delete(note: Note) {
+        do {
+            try noteRepository.delete(note)
+            applyFilter()
+        } catch {
+            state = .error(error.localizedDescription)
+        }
+    }
 
 }

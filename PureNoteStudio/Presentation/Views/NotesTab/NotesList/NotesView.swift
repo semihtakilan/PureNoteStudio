@@ -13,6 +13,8 @@ struct NotesView: View {
     
     @Environment(NotesRouter.self)
     var router
+    
+    @AppStorage("selectedLayout") private var selectedLayout: String = "List View"
 
     var body: some View {
 
@@ -80,8 +82,13 @@ struct NotesView: View {
             .padding(.horizontal, 8)
 
             // MARK: - NoteList
-            noteListView()
-                .padding(.horizontal, 8)
+            
+            if selectedLayout == "List View" {
+                noteListView()
+                    .padding(.horizontal, 8)
+            } else {
+                noteGridView()
+            }
         }
         .background(Color(.systemGray6))
     }
