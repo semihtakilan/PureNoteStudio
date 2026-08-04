@@ -5,7 +5,6 @@
 //  Created by Semih TAKILAN on 21.07.2026.
 //
 
-
 import Foundation
 
 enum CategoryFilter: Identifiable, Hashable, Equatable {

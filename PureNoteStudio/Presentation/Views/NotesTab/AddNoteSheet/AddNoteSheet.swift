@@ -107,5 +107,6 @@ struct AddNoteSheet: View {
         } message: {
             Text(viewModel.errorMessage ?? "")
         }
+        .background(Color.appPageBackground)
     }
 }

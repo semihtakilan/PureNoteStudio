@@ -63,10 +63,10 @@ struct SettingsView: View {
                     LabeledContent("App Version", value: "1.0")
                 }
             }
-            .background(.primary)
+            .scrollContentBackground(.hidden)
         }
-        .navigationTitle("Settings")
         .background(Color(.systemGray6))
+        .navigationTitle("Settings")
         .alert("Doğrulama Hatası", isPresented: $viewModel.showAlert) {
             Button("Tamam", role: .cancel) { }
         } message: {

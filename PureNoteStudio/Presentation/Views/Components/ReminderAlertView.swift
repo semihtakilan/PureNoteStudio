@@ -42,7 +42,7 @@ struct ReminderAlertView: View {
                             .font(.subheadline.bold())
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(Color(.systemGray5))
+                            .background(Color.appControlBackground)
                             .foregroundColor(.primary)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
@@ -55,14 +55,14 @@ struct ReminderAlertView: View {
                             .font(.subheadline.bold())
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(Color.blue)
+                            .background(Color.accentColor)
                             .foregroundColor(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
             }
             .padding()
-            .background(Color(.systemBackground))
+            .background(Color.appSurface)
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
             .padding(.horizontal, 32)

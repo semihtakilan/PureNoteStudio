@@ -29,7 +29,7 @@ extension NotesView {
         .listStyle(.plain)
         .scrollIndicators(.hidden)
         .scrollContentBackground(.hidden)
-        .background(Color(.systemGray6))
+        .background(Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }

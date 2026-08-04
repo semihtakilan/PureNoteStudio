@@ -37,5 +37,6 @@ struct RootTabView: View {
         .onAppear(perform: viewModel.authenticate)
         .environment(\.sizeCategory, appFontSize.dynamicType)
         .preferredColorScheme(appTheme.colorScheme)
+        .tint(.accentColor)
     }
 }

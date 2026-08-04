@@ -57,6 +57,6 @@ extension RootTabView {
             .padding(.top, 16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
+        .background(Color.appPageBackground)
     }
 }

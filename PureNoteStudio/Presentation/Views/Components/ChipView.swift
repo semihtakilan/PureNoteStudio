@@ -32,7 +32,7 @@ struct ChipView: View {
                         .padding(.horizontal, 8)
                         .font(.subheadline)
                         .foregroundStyle(isSelected ? .white : .primary)
-                        .background(isSelected ? Color(.systemBlue) : Color(.systemGray5))
+                        .background(isSelected ? Color.accentColor : Color.appControlBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 24))
                         .id(chip.name)
                     }

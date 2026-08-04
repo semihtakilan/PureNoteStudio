@@ -194,8 +194,10 @@ struct RichTextEditor: UIViewRepresentable {
 
         func textViewDidChangeSelection(_ textView: UITextView) {
             guard !isSynchronizingView else { return }
-            selectedRange = textView.selectedRange
-            updateFormatState(from: textView)
+            Task { @MainActor in
+                selectedRange = textView.selectedRange
+                updateFormatState(from: textView)
+            }
         }
 
         func publishTextChange() {

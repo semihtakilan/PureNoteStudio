@@ -54,7 +54,7 @@ struct FoldersView: View {
         .task {
             viewModel.load()
         }
-        .background(Color(.systemGray6))
+        .background(Color.appPageBackground)
         .alert("Bir hata oluştu", isPresented: Binding(
             get: { viewModel.errorMessage != nil },
             set: { if !$0 { viewModel.errorMessage = nil } }
@@ -80,4 +80,3 @@ struct FoldersView: View {
         }
     }
 }
-

@@ -74,7 +74,7 @@ struct NotesView: View {
                 .padding(.horizontal, 8)
                 .font(.headline)
                 .foregroundStyle(.primary)
-                .background(Color(.systemGray5))
+                .background(Color.appControlBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .padding(.horizontal, 8)

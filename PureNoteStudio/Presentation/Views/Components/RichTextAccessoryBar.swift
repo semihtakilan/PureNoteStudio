@@ -105,6 +105,6 @@ struct RichTextAccessoryBar: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 10)
-        .background(Color(UIColor.systemGray6))
+        .background(Color.appSurface)
     }
 }

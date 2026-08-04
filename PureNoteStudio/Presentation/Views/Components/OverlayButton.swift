@@ -21,7 +21,7 @@ struct OverlayButton: View {
         .font(.system(size: 20))
         .bold()
         .foregroundColor(.white)
-        .background(Color(.systemBlue))
+        .background(Color.accentColor)
         .clipShape(Circle())
         .padding(.trailing, 16)
         .padding(.bottom, 16)
