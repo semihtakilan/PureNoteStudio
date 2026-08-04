@@ -25,46 +25,50 @@ struct SettingsView: View {
     }
     
     var body: some View {
-        VStack {
-            Form {
-                Section("Claude Services") {
-                    Text("Henüz eklenmedi...")
-                }
-                
-                Section("Style") {
-                    Picker("Font size", selection: $appFontSize) {
-                        ForEach(AppFontSize.allCases, id:\.self) { size in
-                            Text(size.rawValue).tag(size)
-                        }
-                    }
-                    Picker("Layout", selection: $selectedLayout) {
-                        ForEach(layouts, id:\.self) { layout in
-                            Text(layout).tag(layout)
-                        }
+        
+        Form {
+            Section("Claude Services") {
+                Text("Henüz eklenmedi...")
+            }
+            .listRowBackground(Color.appControlBackground)
+            
+            Section("Style") {
+                Picker("Font size", selection: $appFontSize) {
+                    ForEach(AppFontSize.allCases, id:\.self) { size in
+                        Text(size.rawValue).tag(size)
                     }
                 }
-                
-                Section("Display Mode") {
-                    Picker("Display Mode", selection: $appTheme) {
-                        ForEach(AppTheme.allCases) { theme in
-                            Text(theme.rawValue).tag(theme)
-                        }
+                Picker("Layout", selection: $selectedLayout) {
+                    ForEach(layouts, id:\.self) { layout in
+                        Text(layout).tag(layout)
                     }
-                }
-                
-                Section("FaceID") {
-                    Toggle("FaceID", isOn: Binding(
-                        get: { viewModel.isFaceIDEnabled },
-                        set: { newValue in viewModel.toggleFaceID(isOn: newValue) }
-                    ))
-                }
-                
-                Section("About the App") {
-                    LabeledContent("App Version", value: "1.0")
                 }
             }
-            .scrollContentBackground(.hidden)
+            .listRowBackground(Color.appControlBackground)
+            
+            Section("Display Mode") {
+                Picker("Display Mode", selection: $appTheme) {
+                    ForEach(AppTheme.allCases) { theme in
+                        Text(theme.rawValue).tag(theme)
+                    }
+                }
+            }
+            .listRowBackground(Color.appControlBackground)
+                               
+            Section("FaceID") {
+                Toggle("FaceID", isOn: Binding(
+                    get: { viewModel.isFaceIDEnabled },
+                    set: { newValue in viewModel.toggleFaceID(isOn: newValue) }
+                ))
+            }
+            .listRowBackground(Color.appControlBackground)
+            
+            Section("About the App") {
+                LabeledContent("App Version", value: "1.0")
+            }
+            .listRowBackground(Color.appControlBackground)
         }
+        .scrollContentBackground(.hidden)
         .background(Color(.systemGray6))
         .navigationTitle("Settings")
         .alert("Doğrulama Hatası", isPresented: $viewModel.showAlert) {
@@ -72,5 +76,6 @@ struct SettingsView: View {
         } message: {
             Text(viewModel.alertMessage)
         }
+        
     }
 }
