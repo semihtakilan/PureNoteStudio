@@ -99,38 +99,28 @@ SwiftUI View
 
 ## Folder Structure
 
-```
+```text
 PureNoteStudio
-│
 ├── App
-│
 ├── Core
 │   ├── Extensions
 │   ├── Foundation
 │   ├── Interfaces
 │   ├── Services
 │   └── UIKit
-│
 ├── Models
-│
 ├── Repository
-│
 ├── Routers
-│
-├── Theme
-│
-├── Views
+├── Presentation
 │   ├── Components
-│   ├── NotesTab
-│   │   ├── AddNoteSheet
-│   │   ├── Folders
-│   │   ├── MoveTo
-│   │   ├── NoteDetail
-│   │   └── NotesList
-│   ├── SettingsTab
-│   └── TabView
-│
-└── Assets
+│   ├── Enums
+│   ├── Theme
+│   ├── TabView
+│   └── Views
+│       ├── NotesTab
+│       └── SettingsTab
+├── Assets.xcassets
+└── Info.plist
 ```
 
 ---
