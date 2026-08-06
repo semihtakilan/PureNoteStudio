@@ -24,10 +24,6 @@ A modern, privacy-focused note-taking application built with **SwiftUI**, follow
 |----------|----------|
 | ![](Images/Screenshots/settings.png) | ![](Images/Screenshots/faceid.png) |
 
-| Empty State |
-|------------|
-| ![](Images/Screenshots/empty.png) |
-
 ---
 
 # Features
