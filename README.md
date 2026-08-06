@@ -273,10 +273,6 @@ Feel free to use this project for learning or inspiration.
 
 # Author
 
-**Semih Takılan**
-
-GitHub:
-https://github.com/semihtakilan
-
-LinkedIn:
-https://linkedin.com/in/semihtakilan
+**Semih TAKILAN**
+Computer Engineering Student & iOS Developer Candidate                                                                                                                           
+[LinkedIn Profile](https://www.linkedin.com/in/semihtakilan) | [GitHub Profile](https://github.com/semihtakilan)
