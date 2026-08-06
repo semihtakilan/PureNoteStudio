@@ -213,7 +213,7 @@ Contains reusable colors, fonts and design constants.
 ## Installation
 
 ```bash
-git clone https://github.com/yourusername/PureNoteStudio.git
+git clone https://github.com/semihtakilan/PureNoteStudio.git
 ```
 
 ```bash
@@ -276,7 +276,7 @@ Feel free to use this project for learning or inspiration.
 **Semih Takılan**
 
 GitHub:
-https://github.com/yourusername
+https://github.com/semihtakilan
 
 LinkedIn:
-https://linkedin.com/in/yourprofile
+https://linkedin.com/in/semihtakilan
