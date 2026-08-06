@@ -14,19 +14,19 @@ A modern, privacy-focused note-taking application built with **SwiftUI**, follow
 
 | Grid Layout | List Layout |
 |------------|------------|
-| ![](home-grid.png) | ![](home-list.png) |
+| ![](Images/Screenshots/home-grid.png) | ![](Images/Screenshots/home-list.png) |
 
 | Note Detail | Folders |
 |-------------|----------|
-| ![](editor.png) | ![](folders.png) |
+| ![](Images/Screenshots/editor.png) | ![](Images/Screenshots/folders.png) |
 
 | Settings | Face ID |
 |----------|----------|
-| ![](settings.png) | ![](faceid.png) |
+| ![](Images/Screenshots/settings.png) | ![](Images/Screenshots/faceid.png) |
 
 | Empty State |
 |------------|
-| ![](empty.png) |
+| ![](Images/Screenshots/empty.png) |
 
 ---
 
