@@ -17,7 +17,7 @@ final class RootTabViewModel {
     
     @ObservationIgnored
     @AppStorage("faceIDState") private var faceIDState: Bool = true
-    var isUnlocked: Bool = false
+    var isUnlocked: Bool = true
     
     init(authService: AuthenticationServiceProtocol) {
         self.authService = authService
