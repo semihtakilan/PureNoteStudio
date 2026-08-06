@@ -16,14 +16,14 @@ final class RootTabViewModel {
     private let faceIDKey = "faceIDState"
     
     @ObservationIgnored
-    @AppStorage("faceIDState") private var faceIDState: Bool = true
+    @AppStorage("faceIDState") private var faceIDState: Bool = false
     var isUnlocked: Bool = true
     
     init(authService: AuthenticationServiceProtocol) {
         self.authService = authService
         
         if defaults.object(forKey: faceIDKey) == nil {
-            defaults.set(true, forKey: faceIDKey)
+            defaults.set(false, forKey: faceIDKey)
         }
         
         let faceIDEnabled = defaults.bool(forKey: faceIDKey)

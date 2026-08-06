@@ -25,10 +25,11 @@ struct NotesView: View {
             case .success:
                 if viewModel.showEmptyView {
                     ContentUnavailableView(
-                        "Henüz veri yok",
+                        "No Notes Yet",
                         systemImage: "tray",
-                        description: Text("İlk notunuzu eklemek için sağ alttaki butona dokunun")
+                        description: Text("Tap the button below to add your first note")
                     )
+
                 } else {
                     successView
                 }

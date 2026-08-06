@@ -21,7 +21,7 @@ final class SettingsViewModel {
     init(authService: AuthenticationServiceProtocol) {
         self.authService = authService
         if defaults.object(forKey: faceIDKey) == nil {
-            defaults.set(true, forKey: faceIDKey)
+            defaults.set(false, forKey: faceIDKey)
         }
         self.isFaceIDEnabled = defaults.bool(forKey: faceIDKey)
     }

@@ -27,7 +27,7 @@ struct SettingsView: View {
         
         Form {
             Section("Claude Services") {
-                Text("Henüz eklenmedi...")
+                Text("Not configured yet...")
             }
             .listRowBackground(Color.appControlBackground)
             

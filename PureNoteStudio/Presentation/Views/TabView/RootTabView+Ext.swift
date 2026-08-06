@@ -37,16 +37,16 @@ extension RootTabView {
                 .font(.system(size: 80))
                 .foregroundColor(.accentColor)
             
-            Text("PureNoteStudio Kilitli")
+            Text("PureNoteStudio is Locked")
                 .font(.title2)
                 .bold()
             
-            Text("Notlarınızı görüntülemek için Face ID kullanın.")
+            Text("Use Face ID to view your notes.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             
             Button(action: { viewModel.authenticate() }) {
-                Text("Kilidi Aç")
+                Text("Unlock")
                     .font(.headline)
                     .foregroundColor(.white)
                     .padding()
