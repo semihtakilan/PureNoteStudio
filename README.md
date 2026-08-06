@@ -132,7 +132,6 @@ PureNoteStudio
 - MVVM
 - Repository Pattern
 - Dependency Injection
-- Combine
 - Observation
 - NavigationStack
 - LocalAuthentication
