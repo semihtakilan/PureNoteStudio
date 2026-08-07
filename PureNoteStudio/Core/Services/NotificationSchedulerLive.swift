@@ -1,5 +1,5 @@
 //
-//  NotificationManager.swift
+//  NotificationSchedulerLive.swift
 //  PureNoteStudio
 //
 //  Created by Semih TAKILAN on 22.07.2026.
@@ -8,7 +8,7 @@
 import Foundation
 import UserNotifications
 
-final class NotificationManagerLive: NotificationManager {
+struct NotificationSchedulerLive: NotificationScheduling {
 
     func requestAuthorization() async -> Bool {
         do {

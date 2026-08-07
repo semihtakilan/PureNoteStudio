@@ -8,12 +8,12 @@
 import Foundation
 import LocalAuthentication
 
-protocol AuthenticationServiceProtocol {
+protocol AuthenticationService {
     func canEvaluatePolicy() -> Bool
     func authenticate(reason: String) async -> Bool
 }
 
-struct AuthenticationServiceLive: AuthenticationServiceProtocol {
+struct AuthenticationServiceLive: AuthenticationService {
     
     func canEvaluatePolicy() -> Bool {
         let context = LAContext()

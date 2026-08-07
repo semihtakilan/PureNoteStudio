@@ -9,7 +9,7 @@ import SwiftUI
 
 @Observable
 final class SettingsViewModel {
-    private let authService: AuthenticationServiceProtocol
+    private let authService: AuthenticationService
     
     private let defaults = UserDefaults.standard
     private let faceIDKey = "faceIDState"
@@ -18,12 +18,13 @@ final class SettingsViewModel {
     var showAlert: Bool = false
     var alertMessage: String = ""
     
-    init(authService: AuthenticationServiceProtocol) {
+    init(authService: AuthenticationService) {
         self.authService = authService
         if defaults.object(forKey: faceIDKey) == nil {
             defaults.set(false, forKey: faceIDKey)
         }
         self.isFaceIDEnabled = defaults.bool(forKey: faceIDKey)
+        print("SettingsViewModel Inited")
     }
     
     func toggleFaceID(isOn: Bool) {

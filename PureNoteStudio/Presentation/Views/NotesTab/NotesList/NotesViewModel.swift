@@ -48,6 +48,7 @@ final class NotesViewModel {
     ) {
         self.noteRepository = noteRepository
         self.categoryRepository = categoryRepository
+        print("NotesViewModel Inited")
     }
 
     func load() {

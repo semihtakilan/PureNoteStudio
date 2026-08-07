@@ -8,7 +8,7 @@
 import Foundation
 @testable import PureNoteStudio
 
-final class MockAuthenticationService: AuthenticationServiceProtocol {
+final class MockAuthenticationService: AuthenticationService {
     
     var mockCanEvaluate: Bool = true
     var mockAuthenticationSuccess: Bool = true

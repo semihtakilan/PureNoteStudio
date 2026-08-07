@@ -13,8 +13,8 @@ import UIKit
 @Observable
 final class NoteDetailViewModel {
     private let noteRepository: NoteRepository
-    private let notificationManager: NotificationManager
-    private let richTextService: RichTextServiceProtocol
+    private let notificationSchedulerLive: NotificationSchedulerLive
+    private let richTextService: RichTextService
     private(set) var note: Note
     
     var attributedText: NSAttributedString = NSAttributedString()
@@ -37,12 +37,12 @@ final class NoteDetailViewModel {
     init(
         note: Note,
         noteRepository: NoteRepository,
-        notificationManager: NotificationManager,
-        richTextService: RichTextServiceProtocol
+        notificationSchedulerLive: NotificationSchedulerLive,
+        richTextService: RichTextService
     ) {
         self.note = note
         self.noteRepository = noteRepository
-        self.notificationManager = notificationManager
+        self.notificationSchedulerLive = notificationSchedulerLive
         self.richTextService = richTextService
         self.title = note.title
         self.originalTitle = note.title
@@ -55,18 +55,18 @@ final class NoteDetailViewModel {
     
     func saveReminder() {
         Task {
-            let granted = await notificationManager.requestAuthorization()
+            let granted = await notificationSchedulerLive.requestAuthorization()
             guard granted else {
                 errorMessage = "Hatırlatıcı için bildirim izni gerekli."
                 return
             }
             
             if let oldID = note.notificationID {
-                notificationManager.removeNotification(with: oldID)
+                notificationSchedulerLive.removeNotification(with: oldID)
             }
             
             do {
-                let newID = try await notificationManager.scheduleNotification(
+                let newID = try await notificationSchedulerLive.scheduleNotification(
                     title: title,
                     body: note.contentText.trimmingCharacters(in: .whitespaces),
                     date: selectedReminderDate

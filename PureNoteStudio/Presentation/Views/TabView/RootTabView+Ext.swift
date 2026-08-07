@@ -15,14 +15,17 @@ extension RootTabView {
             get: { router.selectedTab },
             set: { router.selectedTab = $0 }
         )) {
-            NotesTabView(appDependencies: appDependencies)
+            NotesTabView(
+                appDependencies: appDependencies,
+                viewModel: notesViewModel
+            )
                 .tabItem {
                     Label("Notes", systemImage: "text.page")
                 }
                 .tag(Tab.notes)
             
             NavigationStack {
-                SettingsView(appDependencies: appDependencies)
+                SettingsView(viewModel: settingsViewModel)
             }
             .tabItem {
                 Label("Settings", systemImage: "gearshape")

@@ -1,5 +1,5 @@
 //
-//  RichTextServiceProtocol.swift
+//  RichTextServiceLive.swift
 //  PureNoteStudio
 //
 //  Created by Semih TAKILAN on 22.07.2026.
@@ -8,9 +8,8 @@
 import SwiftUI
 import UIKit
 
-@MainActor
-final class RichTextService: RichTextServiceProtocol {
-    
+struct RichTextServiceLive: RichTextService {
+
     func resizeAttachments(
         in attributedString: NSAttributedString,
         maxWidth: CGFloat

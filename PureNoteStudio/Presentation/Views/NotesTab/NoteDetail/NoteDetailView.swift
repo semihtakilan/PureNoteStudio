@@ -20,14 +20,14 @@ struct NoteDetailView: View {
     init(
         note: Note,
         noteRepository: NoteRepository,
-        notificationManager: NotificationManager,
-        richTextService: RichTextServiceProtocol
+        notificationSchedulerLive: NotificationSchedulerLive,
+        richTextService: RichTextService
     ) {
         self._viewModel = State(
             initialValue: NoteDetailViewModel(
                 note: note,
                 noteRepository: noteRepository,
-                notificationManager: notificationManager,
+                notificationSchedulerLive: notificationSchedulerLive,
                 richTextService: richTextService
             )
         )

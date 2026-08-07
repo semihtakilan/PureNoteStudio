@@ -37,7 +37,7 @@ struct NotesTabView: View {
                         NoteDetailView(
                             note: note,
                             noteRepository: appDependencies.noteRepository,
-                            notificationManager: appDependencies.notificationManager,
+                            notificationSchedulerLive: appDependencies.notificationSchedulerLive,
                             richTextService: appDependencies.richTextService
                         )
                         

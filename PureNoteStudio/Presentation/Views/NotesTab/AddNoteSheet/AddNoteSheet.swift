@@ -19,7 +19,7 @@ struct AddNoteSheet: View {
     
     init(
         noteRepository: NoteRepository,
-        richTextService: RichTextServiceProtocol
+        richTextService: RichTextService
     ) {
         self._viewModel = State(
             initialValue: AddNoteSheetViewModel(

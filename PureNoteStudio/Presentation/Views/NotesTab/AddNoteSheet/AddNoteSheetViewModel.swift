@@ -13,7 +13,7 @@ import PhotosUI
 @Observable
 final class AddNoteSheetViewModel {
     private let noteRepository: NoteRepository
-    private let richTextService: RichTextServiceProtocol
+    private let richTextService: RichTextService
     
     var title: String = ""
     var attributedText = NSAttributedString(string: "")
@@ -27,7 +27,7 @@ final class AddNoteSheetViewModel {
     
     init(
         noteRepository: NoteRepository,
-        richTextService: RichTextServiceProtocol
+        richTextService: RichTextService
     ) {
         self.noteRepository = noteRepository
         self.richTextService = richTextService

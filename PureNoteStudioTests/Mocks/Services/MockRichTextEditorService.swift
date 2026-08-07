@@ -9,7 +9,7 @@ import UIKit
 @testable import PureNoteStudio
 
 @MainActor
-final class MockRichTextService: RichTextServiceProtocol {
+final class MockRichTextService: RichTextService {
     
     var mockResizedAttributedString = NSAttributedString()
     

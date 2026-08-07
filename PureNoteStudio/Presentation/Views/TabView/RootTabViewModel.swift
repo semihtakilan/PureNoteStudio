@@ -10,7 +10,7 @@ import SwiftUI
 @Observable
 final class RootTabViewModel {
     
-    private let authService: AuthenticationServiceProtocol
+    private let authService: AuthenticationService
 
     private let defaults = UserDefaults.standard
     private let faceIDKey = "faceIDState"
@@ -19,7 +19,7 @@ final class RootTabViewModel {
     @AppStorage("faceIDState") private var faceIDState: Bool = false
     var isUnlocked: Bool = true
     
-    init(authService: AuthenticationServiceProtocol) {
+    init(authService: AuthenticationService) {
         self.authService = authService
         
         if defaults.object(forKey: faceIDKey) == nil {
