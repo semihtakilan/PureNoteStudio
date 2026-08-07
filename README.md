@@ -139,6 +139,7 @@ PureNoteStudio
 - LocalAuthentication
 - UserDefaults
 - PhotosPicker
+- UserNotifications
 - Markdown Rendering
 
 ---
