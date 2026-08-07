@@ -41,6 +41,12 @@ A modern, privacy-focused note-taking application built with **SwiftUI**, follow
 - Responsive Grid/List layouts
 - Empty state support
 
+- ### Reminders & Local Notifications
+
+- Set reminders directly on notes
+- Local notification scheduling (Server-free / On-device)
+- Time-sensitive alerts
+
 ### Folder Management
 
 - Create folders
