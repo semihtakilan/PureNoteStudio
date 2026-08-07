@@ -18,10 +18,21 @@ struct RootTabView: View {
     @AppStorage("appFontSize") private var appFontSize: AppFontSize = .medium
     
     @State private(set) var viewModel: RootTabViewModel
+    @State var notesViewModel: NotesViewModel
+    @State var settingsViewModel: SettingsViewModel
     
     init(appDependencies: AppDependencies) {
         self.appDependencies = appDependencies
         self._viewModel = State(initialValue: RootTabViewModel(authService: appDependencies.authService))
+        self._notesViewModel = State(
+            initialValue: NotesViewModel(
+                noteRepository: appDependencies.noteRepository,
+                categoryRepository: appDependencies.categoryRepository
+            )
+        )
+        self._settingsViewModel = State(
+            initialValue: SettingsViewModel(authService: appDependencies.authService)
+        )
     }
     
     var body: some View {

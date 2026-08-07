@@ -9,21 +9,10 @@ import SwiftUI
 
 struct NotesTabView: View {
     let appDependencies: AppDependencies
+    @Bindable var viewModel: NotesViewModel
     
-    @State private var viewModel: NotesViewModel
     @Environment(TabRouter.self)
     private var router
-    
-    init(appDependencies: AppDependencies) {
-        self.appDependencies = appDependencies
-        
-        self._viewModel = State(
-            initialValue: NotesViewModel(
-                noteRepository: appDependencies.noteRepository,
-                categoryRepository: appDependencies.categoryRepository
-            )
-        )
-    }
     
     var body: some View {
         @Bindable var notesRouter = router.notesRouter

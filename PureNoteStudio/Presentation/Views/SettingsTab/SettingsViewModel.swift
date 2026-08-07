@@ -24,7 +24,7 @@ final class SettingsViewModel {
             defaults.set(false, forKey: faceIDKey)
         }
         self.isFaceIDEnabled = defaults.bool(forKey: faceIDKey)
-        print("SettingsViewModel Inited")
+        print("SettingsViewModel")
     }
     
     func toggleFaceID(isOn: Bool) {

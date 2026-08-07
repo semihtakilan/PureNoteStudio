@@ -8,20 +8,13 @@
 import SwiftUI
 
 struct SettingsView: View {
-    let appDependencies: AppDependencies
-    
     @AppStorage("appTheme") private var appTheme: AppTheme = .system
     @AppStorage("appFontSize") private var appFontSize: AppFontSize = .medium
     @AppStorage("selectedLayout") private var selectedLayout: String = "List View"
     
-    @State private var viewModel: SettingsViewModel
+    @Bindable var viewModel: SettingsViewModel
     
     let layouts: [String] = ["List View", "Grid View"]
-    
-    init(appDependencies: AppDependencies) {
-        self.appDependencies = appDependencies
-        self._viewModel = State(initialValue: SettingsViewModel(authService: appDependencies.authService))
-    }
     
     var body: some View {
         
