@@ -91,6 +91,6 @@ struct NotesView: View {
                 noteGridView()
             }
         }
-        .background(Color(.systemGray6))
+        .background(Color.appPageBackground)
     }
 }

@@ -18,7 +18,7 @@ extension NotesView {
             .onDelete { indexSet in
                 viewModel.deleteWhenSwipe(indexSet)
             }
-            .listRowBackground(Color.appControlBackground)
+            .listRowBackground(Color.appSurface)
 
             Text("\(viewModel.notes.count.description) Notes")
                 .font(.footnote)

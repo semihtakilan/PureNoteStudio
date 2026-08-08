@@ -66,6 +66,8 @@ struct MoveToFolderContentView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color.appPageBackground)
         .navigationTitle("Select Folder")
         .task {
             viewModel.load()

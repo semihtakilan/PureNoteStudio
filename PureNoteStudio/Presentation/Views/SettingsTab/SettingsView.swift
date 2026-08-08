@@ -22,7 +22,6 @@ struct SettingsView: View {
             Section("Claude Services") {
                 Text("Not configured yet...")
             }
-            .listRowBackground(Color.appControlBackground)
             
             Section("Style") {
                 Picker("Font size", selection: $appFontSize) {
@@ -36,7 +35,6 @@ struct SettingsView: View {
                     }
                 }
             }
-            .listRowBackground(Color.appControlBackground)
             
             Section("Display Mode") {
                 Picker("Display Mode", selection: $appTheme) {
@@ -45,7 +43,6 @@ struct SettingsView: View {
                     }
                 }
             }
-            .listRowBackground(Color.appControlBackground)
                                
             Section("FaceID") {
                 Toggle("FaceID", isOn: Binding(
@@ -53,15 +50,13 @@ struct SettingsView: View {
                     set: { newValue in viewModel.toggleFaceID(isOn: newValue) }
                 ))
             }
-            .listRowBackground(Color.appControlBackground)
             
             Section("About the App") {
                 LabeledContent("App Version", value: "1.0")
             }
-            .listRowBackground(Color.appControlBackground)
         }
         .scrollContentBackground(.hidden)
-        .background(Color(.systemGray6))
+        .background(Color.appPageBackground)
         .navigationTitle("Settings")
         .alert("Doğrulama Hatası", isPresented: $viewModel.showAlert) {
             Button("Tamam", role: .cancel) { }

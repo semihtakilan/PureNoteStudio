@@ -67,6 +67,7 @@ struct FoldersContentView: View {
         .task {
             viewModel.load()
         }
+        .scrollContentBackground(.hidden)
         .background(Color.appPageBackground)
         .alert("Bir hata oluştu", isPresented: Binding(
             get: { viewModel.errorMessage != nil },
