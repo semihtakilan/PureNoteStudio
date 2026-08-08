@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct NotesTabView: View {
-    let appDependencies: AppDependencies
     @Bindable var viewModel: NotesViewModel
     
     @Environment(TabRouter.self)
@@ -24,33 +23,24 @@ struct NotesTabView: View {
                         
                     case .detail(let note):
                         NoteDetailView(
-                            note: note,
-                            noteRepository: appDependencies.noteRepository,
-                            notificationSchedulerLive: appDependencies.notificationSchedulerLive,
-                            richTextService: appDependencies.richTextService
+                            note: note
                         )
                         
                     case .folders:
                         FoldersView(
-                            noteRepository: appDependencies.noteRepository,
-                            categoryRepository: appDependencies.categoryRepository,
                             onFilterSelected: viewModel.selectFilter
                         )
                         
                     case .moveToFolder(let note):
                         MoveToFolder(
-                            note: note,
-                            categoryRepository: appDependencies.categoryRepository
+                            note: note
                         )
                     }
                 }
                 .sheet(item: $notesRouter.presentedSheet) { item in
                     switch item {
                     case .addNote:
-                        AddNoteSheet(
-                            noteRepository: appDependencies.noteRepository,
-                            richTextService: appDependencies.richTextService
-                        )
+                        AddNoteSheet()
                         .onDisappear {
                             viewModel.load()
                         }

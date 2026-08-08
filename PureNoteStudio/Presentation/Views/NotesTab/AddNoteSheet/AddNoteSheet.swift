@@ -8,25 +8,38 @@
 import SwiftUI
 
 struct AddNoteSheet: View {
-    @State var viewModel: AddNoteSheetViewModel
+    @Environment(AppDependencies.self)
+    private var dependencies
+    
+    @State private var viewModel: AddNoteSheetViewModel?
+    
+    var body: some View {
+        Group {
+            if let viewModel {
+                AddNoteSheetContentView(viewModel: viewModel)
+            } else {
+                ProgressView()
+            }
+        }
+        .task {
+            if viewModel == nil {
+                viewModel = AddNoteSheetViewModel(
+                    noteRepository: dependencies.noteRepository,
+                    richTextService: dependencies.richTextService
+                )
+            }
+        }
+    }
+}
+
+struct AddNoteSheetContentView: View {
+    @Bindable var viewModel: AddNoteSheetViewModel
     
     @Environment(NotesRouter.self)
     private var router
     
     private var editorWidth: CGFloat {
         (UIScreen.current?.bounds.width ?? 390) - 32
-    }
-    
-    init(
-        noteRepository: NoteRepository,
-        richTextService: RichTextService
-    ) {
-        self._viewModel = State(
-            initialValue: AddNoteSheetViewModel(
-                noteRepository: noteRepository,
-                richTextService: richTextService
-            )
-        )
     }
     
     var body: some View {

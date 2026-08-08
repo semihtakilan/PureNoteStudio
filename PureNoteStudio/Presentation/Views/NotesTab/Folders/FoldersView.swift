@@ -8,25 +8,38 @@
 import SwiftUI
 
 struct FoldersView: View {
-    @State private var viewModel: FoldersViewModel
+    let onFilterSelected: (CategoryFilter) -> Void
+    
+    @Environment(AppDependencies.self)
+    private var dependencies
+    
+    @State private var viewModel: FoldersViewModel?
+    
+    var body: some View {
+        Group {
+            if let viewModel {
+                FoldersContentView(viewModel: viewModel, onFilterSelected: onFilterSelected)
+            } else {
+                ProgressView()
+            }
+        }
+        .task {
+            if viewModel == nil {
+                viewModel = FoldersViewModel(
+                    noteRepository: dependencies.noteRepository,
+                    categoryRepository: dependencies.categoryRepository
+                )
+            }
+        }
+    }
+}
+
+struct FoldersContentView: View {
+    @Bindable var viewModel: FoldersViewModel
     let onFilterSelected: (CategoryFilter) -> Void
     
     @Environment(NotesRouter.self)
     var router
-    
-    init(
-        noteRepository: NoteRepository,
-        categoryRepository: CategoryRepository,
-        onFilterSelected: @escaping (CategoryFilter) -> Void
-    ) {
-        self.onFilterSelected = onFilterSelected
-        self._viewModel = State(
-            initialValue: FoldersViewModel(
-                noteRepository: noteRepository,
-                categoryRepository: categoryRepository
-            )
-        )
-    }
     
     var body: some View {
         VStack {

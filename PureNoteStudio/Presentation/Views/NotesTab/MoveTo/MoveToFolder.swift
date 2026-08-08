@@ -8,22 +8,37 @@
 import SwiftUI
 
 struct MoveToFolder: View {
-    @State private var viewModel: MoveToFolderViewModel
+    let note: Note
+    
+    @Environment(AppDependencies.self)
+    private var dependencies
+    
+    @State private var viewModel: MoveToFolderViewModel?
+    
+    var body: some View {
+        Group {
+            if let viewModel {
+                MoveToFolderContentView(viewModel: viewModel)
+            } else {
+                ProgressView()
+            }
+        }
+        .task {
+            if viewModel == nil {
+                viewModel = MoveToFolderViewModel(
+                    note: note,
+                    categoryRepository: dependencies.categoryRepository
+                )
+            }
+        }
+    }
+}
+
+struct MoveToFolderContentView: View {
+    @Bindable var viewModel: MoveToFolderViewModel
     
     @Environment(NotesRouter.self)
     private var router
-    
-    init(
-        note: Note,
-        categoryRepository: CategoryRepository
-    ) {
-        self._viewModel = State(
-            initialValue: MoveToFolderViewModel(
-                note: note,
-                categoryRepository: categoryRepository
-            )
-        )
-    }
     
     var body: some View {
         VStack {

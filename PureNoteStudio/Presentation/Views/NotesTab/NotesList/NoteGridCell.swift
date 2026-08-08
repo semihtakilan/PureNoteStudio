@@ -32,6 +32,10 @@ struct NoteGridCell: View {
                         .foregroundColor(.secondary)
                         .lineLimit(6)
                         .multilineTextAlignment(.leading)
+                    
+                    Text(note.lastEdit.formattedDateString)
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
                 }
             }
             .padding(16)

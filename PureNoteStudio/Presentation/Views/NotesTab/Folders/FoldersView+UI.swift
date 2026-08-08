@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension FoldersView {
+extension FoldersContentView {
     func FolderRow(item: CategoryFilter, customCount: Int? = nil) -> some View {
         Button {
             onFilterSelected(item)

@@ -16,7 +16,6 @@ extension RootTabView {
             set: { router.selectedTab = $0 }
         )) {
             NotesTabView(
-                appDependencies: appDependencies,
                 viewModel: notesViewModel
             )
                 .tabItem {

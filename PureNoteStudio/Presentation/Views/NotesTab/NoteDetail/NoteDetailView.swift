@@ -8,29 +8,42 @@
 import SwiftUI
 
 struct NoteDetailView: View {
-    @State private var viewModel: NoteDetailViewModel
+    let note: Note
+    
+    @Environment(AppDependencies.self)
+    private var dependencies
+    
+    @State private var viewModel: NoteDetailViewModel?
+    
+    var body: some View {
+        Group {
+            if let viewModel {
+                NoteDetailContentView(viewModel: viewModel)
+            } else {
+                ProgressView()
+            }
+        }
+        .task {
+            if viewModel == nil {
+                viewModel = NoteDetailViewModel(
+                    note: note,
+                    noteRepository: dependencies.noteRepository,
+                    notificationSchedulerLive: dependencies.notificationSchedulerLive,
+                    richTextService: dependencies.richTextService
+                )
+            }
+        }
+    }
+}
+
+struct NoteDetailContentView: View {
+    @Bindable var viewModel: NoteDetailViewModel
     
     @Environment(NotesRouter.self)
     private var router
     
     private var editorWidth: CGFloat {
         (UIScreen.current?.bounds.width ?? 390) - 32
-    }
-    
-    init(
-        note: Note,
-        noteRepository: NoteRepository,
-        notificationSchedulerLive: NotificationSchedulerLive,
-        richTextService: RichTextService
-    ) {
-        self._viewModel = State(
-            initialValue: NoteDetailViewModel(
-                note: note,
-                noteRepository: noteRepository,
-                notificationSchedulerLive: notificationSchedulerLive,
-                richTextService: richTextService
-            )
-        )
     }
     
     var body: some View {
